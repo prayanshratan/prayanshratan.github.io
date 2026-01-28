@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* LIGHT MODE - Elegant & Soft */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3f4f6;
+  /* Gray 100 */
+  --bg-card: rgba(255, 255, 255, 0.8);
+
+  --text-primary: #111827;
+  /* Gray 900 */
+  --text-secondary: #4b5563;
+  /* Gray 600 */
+  --text-tertiary: #9ca3af;
+  /* Gray 400 */
+
+  --accent-primary: #000000;
+  /* Distinct Black for High Contrast */
+  --accent-hover: #374151;
+
+  --border-light: #e5e7eb;
+}
+
+[data-theme="dark"] {
+  /* DARK MODE - Deep & Cosmic */
+  --bg-primary: #000000;
+  /* True Black */
+  --bg-secondary: #0a0a0a;
+  --bg-card: rgba(23, 23, 23, 0.6);
+
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  /* Zinc 400 */
+  --text-tertiary: #52525b;
+  /* Zinc 600 */
+
+  --accent-primary: #3b82f6;
+  /* Blue 500 - Electric */
+  --accent-hover: #60a5fa;
+
+  --border-light: #27272a;
+  /* Zinc 800 */
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-primary text-secondary antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  /* Selection Color */
+  ::selection {
+    @apply bg-accent text-white;
+  }
+}
+
+@layer utilities {
+  .text-glow {
+    text-shadow: 0 0 40px rgba(59, 130, 246, 0.5);
+  }
+
+  .glass {
+    @apply backdrop-blur-md bg-card border border-border-light;
+  }
+
+  /* Hide scrollbar for clean look in some containers */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
