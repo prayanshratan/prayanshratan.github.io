@@ -37,19 +37,19 @@ const Navbar = ({ isDark, toggleTheme }) => {
                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl group-hover:rotate-12 transition-transform">
                             P
                         </div>
-                        <span className="text-xl font-bold tracking-tight text-primary">
+                        <span className="text-xl font-bold tracking-tight text-foreground">
                             Prayansh<span className="text-blue-500">.</span>
                         </span>
                     </a>
 
                     {/* Desktop Menu */}
                     <div className="hidden md:flex items-center gap-1">
-                        <div className="flex items-center bg-secondary/50 rounded-full px-4 py-1.5 border border-white/10 backdrop-blur-md">
+                        <div className="flex items-center bg-muted/50 rounded-full px-4 py-1.5 border border-white/10 backdrop-blur-md">
                             {navLinks.map((link) => (
                                 <a
                                     key={link.name}
                                     href={link.href}
-                                    className="px-4 py-1.5 text-sm font-medium text-secondary hover:text-primary transition-colors relative group"
+                                    className="px-4 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors relative group"
                                 >
                                     {link.name}
                                     <span className="absolute bottom-1 left-4 right-4 h-px bg-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
@@ -61,7 +61,7 @@ const Navbar = ({ isDark, toggleTheme }) => {
 
                         <button
                             onClick={toggleTheme}
-                            className="p-2.5 rounded-full bg-secondary/50 hover:bg-secondary text-primary transition-all hover:scale-105 active:scale-95"
+                            className="p-2.5 rounded-full bg-muted/50 hover:bg-muted text-foreground transition-all hover:scale-105 active:scale-95"
                             aria-label="Toggle theme"
                         >
                             {isDark ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} className="text-slate-700" />}
@@ -72,13 +72,13 @@ const Navbar = ({ isDark, toggleTheme }) => {
                     <div className="md:hidden flex items-center gap-4">
                         <button
                             onClick={toggleTheme}
-                            className="p-2 rounded-full bg-secondary/50 text-primary"
+                            className="p-2 rounded-full bg-muted/50 text-foreground"
                         >
                             {isDark ? <Sun size={20} /> : <Moon size={20} />}
                         </button>
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="text-primary"
+                            className="text-foreground"
                         >
                             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
@@ -93,7 +93,7 @@ const Navbar = ({ isDark, toggleTheme }) => {
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="fixed inset-0 z-40 bg-bg-primary pt-24 px-6 md:hidden"
+                        className="fixed inset-0 z-40 bg-bg-background pt-24 px-6 md:hidden"
                     >
                         <div className="flex flex-col gap-6">
                             {navLinks.map((link, i) => (
@@ -103,7 +103,7 @@ const Navbar = ({ isDark, toggleTheme }) => {
                                     transition={{ delay: i * 0.1 }}
                                     key={link.name}
                                     href={link.href}
-                                    className="text-3xl font-bold text-primary hover:text-blue-500"
+                                    className="text-3xl font-bold text-foreground hover:text-blue-500"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     {link.name}

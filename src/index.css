@@ -3,45 +3,43 @@
 @tailwind utilities;
 
 :root {
-  /* LIGHT MODE - Elegant & Soft */
+  /* LIGHT MODE */
   --bg-primary: #ffffff;
-  --bg-secondary: #f3f4f6;
-  /* Gray 100 */
-  --bg-card: rgba(255, 255, 255, 0.8);
+  --bg-secondary: #f4f4f5;
+  /* Zinc 100 */
+  --bg-card: #ffffff;
 
-  --text-primary: #111827;
-  /* Gray 900 */
-  --text-secondary: #4b5563;
-  /* Gray 600 */
-  --text-tertiary: #9ca3af;
-  /* Gray 400 */
+  --text-primary: #18181b;
+  /* Zinc 950 - High Contrast Black */
+  --text-secondary: #71717a;
+  /* Zinc 500 */
 
   --accent-primary: #000000;
-  /* Distinct Black for High Contrast */
-  --accent-hover: #374151;
+  /* Luxury Black for brand */
+  --accent-hover: #27272a;
 
-  --border-light: #e5e7eb;
+  --border-light: #e4e4e7;
+  /* Zinc 200 */
 }
 
 [data-theme="dark"] {
-  /* DARK MODE - Deep & Cosmic */
-  --bg-primary: #000000;
-  /* True Black */
-  --bg-secondary: #0a0a0a;
-  --bg-card: rgba(23, 23, 23, 0.6);
+  /* DARK MODE */
+  --bg-primary: #09090b;
+  /* Zinc 950 */
+  --bg-secondary: #18181b;
+  /* Zinc 900 */
+  --bg-card: #09090b;
 
-  --text-primary: #ffffff;
+  --text-primary: #fafafa;
+  /* Zinc 50 - High Contrast White */
   --text-secondary: #a1a1aa;
   /* Zinc 400 */
-  --text-tertiary: #52525b;
-  /* Zinc 600 */
 
   --accent-primary: #3b82f6;
-  /* Blue 500 - Electric */
-  --accent-hover: #60a5fa;
+  /* Electric Blue for enterprise feel */
+  --accent-hover: #1d4ed8;
 
   --border-light: #27272a;
-  /* Zinc 800 */
 }
 
 @layer base {
@@ -50,13 +48,23 @@
   }
 
   body {
-    @apply bg-primary text-secondary antialiased;
+    @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, sans-serif;
   }
 
   /* Selection Color */
   ::selection {
-    @apply bg-accent text-white;
+    @apply bg-brand text-white;
+    /* Removed opacity modifier to avoid build errors with CSS vars */
+  }
+}
+
+@layer components {
+
+  /* CRITICAL: Global Section Padding */
+  .section {
+    @apply py-32 md:py-48;
+    /* 8rem (128px) mobile, 12rem (192px) desktop */
   }
 }
 
@@ -66,10 +74,9 @@
   }
 
   .glass {
-    @apply backdrop-blur-md bg-card border border-border-light;
+    @apply backdrop-blur-md bg-card border border-border;
   }
 
-  /* Hide scrollbar for clean look in some containers */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -77,5 +84,28 @@
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* Quill Editor Overrides */
+  .ql-toolbar {
+    background-color: #f4f4f5;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    border-color: var(--border-light) !important;
+  }
+
+  .ql-container {
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+    border-color: var(--border-light) !important;
+    background-color: white;
+    /* Always white so black text is visible */
+    color: black;
+    font-size: 1rem;
+  }
+
+  .ql-editor {
+    min-height: 16rem;
+    /* h-64 equivalent */
   }
 }

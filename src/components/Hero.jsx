@@ -1,7 +1,10 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, Download } from 'lucide-react';
+import { useData } from '../context/DataContext';
 
 const Hero = () => {
+    const { data } = useData();
+
     return (
         <section className="relative min-h-screen flex flex-col justify-center overflow-hidden">
 
@@ -13,7 +16,7 @@ const Hero = () => {
 
             {/* Spotlight Effect (Dark Mode Only) */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-                <div className="absolute top-[-50%] left-[-10%] w-[1000px] h-[1000px] bg-blue-500/20 rounded-full blur-[100px] animate-blob mix-blend-screen opacity-0 dark:opacity-100"></div>
+                <div className="absolute top-[-50%] left-[-10%] w-[1000px] h-[1000px] bg-brand/20 rounded-full blur-[100px] animate-blob mix-blend-screen opacity-0 dark:opacity-100"></div>
                 <div className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] bg-purple-500/10 rounded-full blur-[120px] animate-blob animation-delay-2000 mix-blend-screen opacity-0 dark:opacity-100"></div>
             </div>
 
@@ -23,7 +26,7 @@ const Hero = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary border border-border-light mb-8"
+                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border border-border mb-8"
                     >
                         <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                         <span className="text-sm font-medium tracking-wide">Available for new opportunities</span>
@@ -33,19 +36,19 @@ const Hero = () => {
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-                        className="text-6xl md:text-8xl font-bold tracking-tight mb-8 text-primary leading-[1.1]"
+                        className="text-6xl md:text-8xl font-bold tracking-tight mb-8 text-foreground leading-[1.1]"
                     >
                         Building products <br />
-                        that <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600 animate-shimmer dark:text-glow">shape the future.</span>
+                        that <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand to-purple-600 animate-shimmer dark:text-glow">shape the future.</span>
                     </motion.h1>
 
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.3 }}
-                        className="text-xl md:text-2xl text-secondary mb-12 max-w-2xl leading-relaxed font-light"
+                        className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl leading-relaxed font-light"
                     >
-                        I'm a Product Manager who codes. I utilize my engineering background to bridge the technical gap, translating complex problems into elegant, scalable solutions.
+                        {data.hero.subtitle}
                     </motion.p>
 
                     <motion.div
@@ -65,8 +68,10 @@ const Hero = () => {
                         </a>
 
                         <a
-                            href="/resume.pdf"
-                            className="inline-flex h-14 items-center justify-center rounded-full border border-border-light bg-white dark:bg-black px-8 text-sm font-medium text-primary shadow-sm transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                            href={data.hero.resumeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex h-14 items-center justify-center rounded-full border border-border bg-background px-8 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                         >
                             Resume <Download className="ml-2 w-4 h-4" />
                         </a>
@@ -81,8 +86,8 @@ const Hero = () => {
                 transition={{ delay: 1, duration: 1 }}
                 className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
             >
-                <span className="text-xs uppercase tracking-widest text-tertiary">Scroll</span>
-                <div className="w-[1px] h-12 bg-gradient-to-b from-transparent via-secondary to-transparent"></div>
+                <span className="text-xs uppercase tracking-widest text-muted-foreground/60">Scroll</span>
+                <div className="w-[1px] h-12 bg-gradient-to-b from-transparent via-muted-foreground to-transparent"></div>
             </motion.div>
         </section>
     );
