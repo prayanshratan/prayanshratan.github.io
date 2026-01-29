@@ -1,5 +1,6 @@
 import { DataProvider } from './context/DataContext';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import AppRoutes from './AppRoutes';
 import './index.css';
 
@@ -12,7 +13,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <BrowserRouter>
             <DataProvider>
                 <AuthProvider>
-                    <AppRoutes />
+                    <ThemeProvider>
+                        <AppRoutes />
+                    </ThemeProvider>
                 </AuthProvider>
             </DataProvider>
         </BrowserRouter>

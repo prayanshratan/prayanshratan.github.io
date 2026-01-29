@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Sun, Moon, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from '../context/ThemeContext';
 
-const Navbar = ({ isDark, toggleTheme }) => {
+const Navbar = () => {
+    const { isDark, toggleTheme } = useTheme();
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -28,8 +30,8 @@ const Navbar = ({ isDark, toggleTheme }) => {
                 animate={{ y: 0 }}
                 transition={{ duration: 0.5 }}
                 className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                        ? 'h-16 bg-white/70 dark:bg-black/70 backdrop-blur-xl border-b border-white/10 dark:border-white/5'
-                        : 'h-24 bg-transparent'
+                    ? 'h-16 bg-white/70 dark:bg-black/70 backdrop-blur-xl border-b border-white/10 dark:border-white/5'
+                    : 'h-24 bg-transparent'
                     }`}
             >
                 <div className="container mx-auto px-6 h-full flex items-center justify-between">

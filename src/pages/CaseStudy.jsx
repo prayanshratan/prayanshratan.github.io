@@ -4,6 +4,9 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowLeft, Clock, Calendar, Share2, Bookmark } from 'lucide-react';
 import { useData } from '../context/DataContext';
 
+import { useTheme } from '../context/ThemeContext';
+import { Sun, Moon } from 'lucide-react';
+
 const CaseStudy = () => {
     const { id } = useParams();
     // The ID in the URL might be "123-my-blog-title", so we need to extract the actual ID part.
@@ -11,8 +14,10 @@ const CaseStudy = () => {
     const projectId = id.split('-')[0];
 
     const { data } = useData();
+    const { isDark, toggleTheme } = useTheme();
     const navigate = useNavigate();
     const [project, setProject] = useState(null);
+    const [copied, setCopied] = useState(false);
 
     const { scrollYProgress } = useScroll();
     const scale = useTransform(scrollYProgress, [0, 1], [1, 1.2]);
@@ -67,8 +72,29 @@ const CaseStudy = () => {
                     <div className="text-sm font-medium text-muted-foreground hidden md:block">
                         {project.title}
                     </div>
-                    <button className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-foreground transition-colors">
-                        <Share2 size={20} />
+
+                    <button
+                        onClick={toggleTheme}
+                        className="p-2.5 rounded-full bg-muted/50 hover:bg-muted text-foreground transition-all hover:scale-105 active:scale-95"
+                        aria-label="Toggle theme"
+                    >
+                        {isDark ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} className="text-slate-700" />}
+                    </button>
+
+                    <button
+                        onClick={() => {
+                            navigator.clipboard.writeText(window.location.href);
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2000);
+                        }}
+                        className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-foreground transition-all relative group"
+                        title="Copy Link"
+                    >
+                        {copied ? (
+                            <span className="text-xs font-bold text-green-500 animate-in fade-in zoom-in">Copied!</span>
+                        ) : (
+                            <Share2 size={20} />
+                        )}
                     </button>
                 </div>
             </nav>
