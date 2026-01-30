@@ -176,6 +176,15 @@ const CaseStudy = () => {
                 />
             </div>
 
+            {project.mediumLink && (
+                <div className="max-w-3xl mx-auto px-6 mb-12">
+                    <p className="text-sm text-muted-foreground italic border-l-2 border-brand pl-4 py-2 bg-muted/30 rounded-r-lg">
+                        This blog has been published on <a href={project.mediumLink} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline font-medium">Medium</a>. If you like please show your appreciation by clapping and follow me for more.
+                    </p>
+                </div>
+            )}
+
+
             {/* Footer / Contact CTA */}
             <footer className="border-t border-border mt-12 bg-muted/30">
                 <div className="max-w-4xl mx-auto px-6 py-16 flex flex-col items-center text-center">

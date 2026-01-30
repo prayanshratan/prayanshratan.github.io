@@ -110,7 +110,8 @@ const Admin = () => {
             img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop", // Default placeholder
             colSpan: "md:col-span-1",
             selected: false,
-            caseStudy: ""
+            caseStudy: "",
+            mediumLink: ""
         };
         updateLocalState('projects', [newProject, ...localData.projects]);
     };
@@ -376,6 +377,15 @@ const Admin = () => {
                                                 onChange={(e) => updateProject(project.id, 'tech', e.target.value.split(",").map(t => t.trim()))}
                                                 className="p-2 bg-muted rounded border border-border w-full mobile-input"
                                                 placeholder="React, Node, etc"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-muted-foreground uppercase">Medium Link (Optional)</label>
+                                            <input
+                                                value={project.mediumLink || ''}
+                                                onChange={(e) => updateProject(project.id, 'mediumLink', e.target.value)}
+                                                className="p-2 bg-muted rounded border border-border w-full mobile-input"
+                                                placeholder="https://medium.com/@username/story-slug"
                                             />
                                         </div>
                                     </div>
