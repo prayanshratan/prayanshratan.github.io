@@ -60,7 +60,7 @@ const CaseStudy = () => {
             />
 
             {/* Navigation / Header */}
-            <nav className="fixed top-0 inset-x-0 h-16 bg-background/80 backdrop-blur-md z-40 border-b border-border/50 flex items-center justify-between px-6 md:px-20 transition-all">
+            <nav className="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] md:w-[80%] z-40 rounded-full bg-background/80 backdrop-blur-md border border-border/50 shadow-sm flex items-center justify-between px-6 py-3 transition-all">
                 <button
                     onClick={() => navigate('/')}
                     className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-foreground"
@@ -179,7 +179,7 @@ const CaseStudy = () => {
             {project.mediumLink && (
                 <div className="max-w-3xl mx-auto px-6 mb-12">
                     <p className="text-sm text-muted-foreground italic border-l-2 border-brand pl-4 py-2 bg-muted/30 rounded-r-lg">
-                        This blog has been published on <a href={project.mediumLink} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline font-medium">Medium</a>. If you like please show your appreciation by clapping and follow me for more.
+                        This blog has been published on <a href={project.mediumLink} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline font-medium">Medium</a>. If you liked it, please show your appreciation by clapping and follow me for more.
                     </p>
                 </div>
             )}

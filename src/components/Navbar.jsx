@@ -26,15 +26,15 @@ const Navbar = () => {
     return (
         <>
             <motion.nav
-                initial={{ y: -100 }}
-                animate={{ y: 0 }}
+                initial={{ y: -100, x: "-50%", opacity: 0 }}
+                animate={{ y: 0, x: "-50%", opacity: 1 }}
                 transition={{ duration: 0.5 }}
-                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                    ? 'h-16 bg-white/70 dark:bg-black/70 backdrop-blur-xl border-b border-white/10 dark:border-white/5'
-                    : 'h-24 bg-transparent'
+                className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 rounded-full ${isScrolled
+                    ? 'w-[90%] md:w-[70%] bg-white/80 dark:bg-black/80 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-lg py-2'
+                    : 'w-[95%] md:w-[80%] bg-white/50 dark:bg-black/20 backdrop-blur-md border border-white/10 dark:border-white/5 py-4'
                     }`}
             >
-                <div className="container mx-auto px-6 h-full flex items-center justify-between">
+                <div className="w-full px-6 flex items-center justify-between">
                     <a href="#" className="flex items-center gap-2 group">
                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl group-hover:rotate-12 transition-transform">
                             P
@@ -46,7 +46,7 @@ const Navbar = () => {
 
                     {/* Desktop Menu */}
                     <div className="hidden md:flex items-center gap-1">
-                        <div className="flex items-center bg-muted/50 rounded-full px-4 py-1.5 border border-white/10 backdrop-blur-md">
+                        <div className="flex items-center gap-1">
                             {navLinks.map((link) => (
                                 <a
                                     key={link.name}
@@ -95,7 +95,7 @@ const Navbar = () => {
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="fixed inset-0 z-40 bg-bg-background pt-24 px-6 md:hidden"
+                        className="fixed inset-0 z-40 bg-background/95 backdrop-blur-xl pt-24 px-6 md:hidden"
                     >
                         <div className="flex flex-col gap-6">
                             {navLinks.map((link, i) => (
