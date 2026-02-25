@@ -90,15 +90,28 @@ const Projects = () => {
                 <motion.div className="mb-16 max-w-2xl">
                     <span className="text-brand font-semibold tracking-wider uppercase text-sm mb-2 block">Portfolio</span>
                     <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">Selected Works</h2>
-                    <p className="text-lg text-muted-foreground font-light">
+                    <p className="text-lg text-muted-foreground font-light mb-2">
                         A curation of products I've built, managed, and scaled.
                     </p>
+                    <Link to="/projects" className="text-brand hover:underline font-medium inline-flex items-center gap-1">
+                        See all case studies here <ArrowUpRight size={16} />
+                    </Link>
                 </motion.div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {displayProjects.map((project, index) => (
                         <Card key={project.id} project={project} index={index} />
                     ))}
+                </div>
+
+                <div className="mt-16 flex justify-center">
+                    <Link
+                        to="/projects"
+                        className="group flex items-center gap-2 px-8 py-4 bg-transparent border-2 border-brand text-brand hover:bg-brand hover:text-white font-bold rounded-full transition-all duration-300"
+                    >
+                        View All Project Case Studies
+                        <ArrowUpRight size={20} className="transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                    </Link>
                 </div>
             </div>
         </section>
