@@ -45,8 +45,8 @@ const Contact = () => {
                             href={`mailto:${contact.email}`}
                             className="group relative inline-flex items-center gap-3 px-8 py-4 bg-foreground text-background rounded-full text-lg font-medium shadow-lg hover:shadow-brand/25 transition-all hover:-translate-y-1"
                         >
-                            <Mail size={20} className="text-brand" />
-                            <span>{contact.email}</span>
+                            <Mail size={20} />
+                            <span>Contact Me</span>
                             <ArrowRight size={20} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
                         </a>
 

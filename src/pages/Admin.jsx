@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash, LogOut, Save, X, FileText, Upload, Image as ImageIcon, AlertCircle } from 'lucide-react';
+import { Plus, Trash, LogOut, Save, X, FileText, Upload, Image as ImageIcon, AlertCircle, ArrowUpRight } from 'lucide-react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -170,13 +170,9 @@ const Admin = () => {
         updateLocalState('contact', { ...localData.contact, [field]: value });
     };
 
-    // Resume (Mock Upload)
-    const handleResumeUpload = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const url = URL.createObjectURL(file);
-            updateLocalState('hero', { ...localData.hero, resumeUrl: url });
-        }
+    // The resume is stored as a string URL in the database.
+    const updateResumeUrl = (url) => {
+        updateLocalState('hero', { ...localData.hero, resumeUrl: url });
     };
 
     return (
@@ -472,20 +468,42 @@ const Admin = () => {
                     {/* RESUME TAB */}
                     {activeTab === 'resume' && (
                         <div className="space-y-6">
-                            <div className="p-12 border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center bg-card/50 hover:bg-card transition-colors">
+                            <div className="p-12 border border-border bg-card rounded-xl flex flex-col items-center justify-center shadow-sm">
                                 <div className="w-16 h-16 rounded-full bg-brand/10 text-brand flex items-center justify-center mb-6">
                                     <FileText size={32} />
                                 </div>
-                                <h3 className="text-xl font-bold mb-2">Update Resume</h3>
-                                <p className="mb-6 text-center text-muted-foreground">
-                                    Current File: <a href={localData.hero.resumeUrl} target="_blank" className="text-brand hover:underline">View PDF</a>
+                                <h3 className="text-xl font-bold mb-2">Resume Configuration</h3>
+                                <p className="mb-8 text-center text-muted-foreground text-sm max-w-md">
+                                    Your resume is stored as a URL link in the database. Paste a link to your hosted PDF (like a Google Drive link, Dropbox, or a file uploaded elsewhere).
                                 </p>
 
-                                <label className="cursor-pointer px-6 py-3 bg-brand text-white rounded-lg hover:bg-brand-hover transition-colors font-medium flex items-center gap-2">
-                                    <Upload size={18} />
-                                    Upload New PDF
-                                    <input type="file" accept=".pdf" className="hidden" onChange={handleResumeUpload} />
-                                </label>
+                                <div className="w-full max-w-lg space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-semibold text-muted-foreground uppercase flex items-center gap-2">
+                                            Resume URL Link
+                                        </label>
+                                        <input
+                                            value={localData.hero.resumeUrl || ''}
+                                            onChange={(e) => updateResumeUrl(e.target.value)}
+                                            placeholder="https://drive.google.com/..."
+                                            className="w-full p-4 bg-muted rounded-lg border border-border focus:ring-2 focus:ring-brand/20 outline-none transition-all"
+                                        />
+                                    </div>
+
+                                    {localData.hero.resumeUrl && (
+                                        <div className="p-4 bg-brand/5 border border-brand/20 rounded-lg flex items-center justify-between">
+                                            <span className="text-sm font-medium">Test current link:</span>
+                                            <a
+                                                href={localData.hero.resumeUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-brand hover:underline text-sm font-bold flex items-center gap-1"
+                                            >
+                                                View Live Resume <ArrowUpRight size={14} />
+                                            </a>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     )}
