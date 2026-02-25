@@ -4,19 +4,26 @@ import { useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 
 const Login = () => {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (login(username, password)) {
+        setLoading(true);
+        setError('');
+
+        const { success, error: authError } = await login(email, password);
+
+        if (success) {
             navigate('/admin');
         } else {
-            setError('Invalid credentials');
+            setError(authError || 'Invalid credentials');
         }
+        setLoading(false);
     };
 
     return (
@@ -32,13 +39,14 @@ const Login = () => {
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                        <label className="block text-sm font-medium mb-2">Username</label>
+                        <label className="block text-sm font-medium mb-2">Email</label>
                         <input
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all"
-                            placeholder="Enter username"
+                            placeholder="Enter your email"
+                            required
                         />
                     </div>
 
@@ -49,7 +57,8 @@ const Login = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all"
-                            placeholder="Enter password"
+                            placeholder="Enter your password"
+                            required
                         />
                     </div>
 
@@ -61,10 +70,14 @@ const Login = () => {
 
                     <button
                         type="submit"
-                        className="w-full py-4 rounded-lg bg-brand text-white font-bold hover:bg-brand-hover transition-colors"
+                        disabled={loading}
+                        className={`w-full py-4 rounded-lg bg-brand text-white font-bold transition-colors ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-brand-hover'}`}
                     >
-                        Authenticate
+                        {loading ? 'Authenticating...' : 'Authenticate'}
                     </button>
+                    <p className="text-center text-xs text-muted-foreground mt-4">
+                        Secure login powered by Supabase.
+                    </p>
                 </form>
             </div>
         </div>

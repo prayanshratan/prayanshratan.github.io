@@ -1,46 +1,52 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import Cookies from 'js-cookie';
+import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+    const [user, setUser] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Check for session cookie on load
-        const session = Cookies.get('admin_session');
-        if (session) {
-            setIsAuthenticated(true);
-        }
-        setIsLoading(false);
+        // Check current session
+        const initSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setUser(session?.user || null);
+            setIsAuthenticated(!!session);
+            setIsLoading(false);
+        };
+
+        initSession();
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user || null);
+            setIsAuthenticated(!!session);
+        });
+
+        return () => subscription.unsubscribe();
     }, []);
 
-    const login = (username, password) => {
-        // In a real app, verify against a backend
-        // IMPORTANT: Client-side env checks are not perfectly secure, but sufficient for a personal portfolio
-        // hosted on Vercel if we accept the risk of bundle inspection.
-        // Ideally, we'd use a serverless function.
+    const login = async (email, password) => {
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
 
-        // Using import.meta.env for Vite
-        const adminUser = import.meta.env.VITE_ADMIN_USER || 'admin';
-        const adminPass = import.meta.env.VITE_ADMIN_PASSWORD || 'P@ssword1';
-
-        if (username === adminUser && password === adminPass) {
-            Cookies.set('admin_session', 'true', { expires: 1 }); // 1 day expiry
-            setIsAuthenticated(true);
-            return true;
+        if (error) {
+            console.error(error);
+            return { success: false, error: error.message };
         }
-        return false;
+        return { success: true };
     };
 
-    const logout = () => {
-        Cookies.remove('admin_session');
-        setIsAuthenticated(false);
+    const logout = async () => {
+        await supabase.auth.signOut();
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>
+        <AuthContext.Provider value={{ user, isAuthenticated, isLoading, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

@@ -1,86 +1,17 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 const DataContext = createContext();
 
-const initialData = {
+const initialDataFallback = {
     hero: {
         title: "Building products\nthat shape the future.",
         subtitle: "I'm a Product Manager who codes. I utilize my engineering background to bridge the technical gap, translating complex problems into elegant, scalable solutions.",
         resumeUrl: "/resume.pdf"
     },
-    experience: [
-        {
-            id: 'E7B2K9',
-            role: "Product Manager",
-            company: "Current Company",
-            period: "2023 - Present",
-            description: "Leading the product vision and strategy for enterprise solutions. Collaborating with engineering and design teams.",
-            tags: ["Strategy", "Roadmapping", "Agile"]
-        },
-        {
-            id: 'M4N1X8',
-            role: "Associate Product Manager",
-            company: "Previous Tech Co.",
-            period: "2021 - 2023",
-            description: "Managed the full product lifecycle for consumer-facing mobile applications. Increased user retention by 15%.",
-            tags: ["User Research", "Data Analysis", "Mobile"]
-        },
-        {
-            id: 'P9Q3R5',
-            role: "Software Developer",
-            company: "Tech Startup",
-            period: "2019 - 2021",
-            description: "Built scalable web applications using React and Node.js. Transitioned into product management bridging technical constraints.",
-            tags: ["Full Stack", "React", "System Design"]
-        }
-    ],
-    projects: [
-        {
-            id: 'A1B2C3',
-            title: "Enterprise Analytics Engine",
-            category: "B2B SaaS / AI",
-            description: "Architected a real-time analytics engine processing 1M+ events/sec. Reduced query latency by 80% and unlocked new revenue streams via premium insights.",
-            tech: ["Product Strategy", "Big Data", "React"],
-            img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
-            colSpan: "md:col-span-2",
-            selected: true
-        },
-        {
-            id: 'X9Y8Z7',
-            title: "Fintech Mobile App",
-            category: "Consumer Finance",
-            description: "Led the 2.0 redesign focusing on accessibility and trust. Increased user retention by 25% within the first quarter of launch.",
-            tech: ["Mobile Growth", "Figma", "UX Research"],
-            img: "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1470&auto=format&fit=crop",
-            colSpan: "md:col-span-1",
-            selected: true
-        },
-        {
-            id: 'D4E5F6',
-            title: "Developer API Portal",
-            category: "DevTools",
-            description: "Built a developer-first documentation portal and API playground, reducing integration time for partners by 40%.",
-            tech: ["API Design", "DX", "Technical Writing"],
-            img: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop",
-            colSpan: "md:col-span-1",
-            selected: true
-        },
-        {
-            id: 'G7H8I9',
-            title: "Global Supply Chain Ops",
-            category: "Internal Tooling",
-            description: "Developed an internal dashboard for logistics tracking, saving the operations team 15 hours per week per person.",
-            tech: ["Operations", "Dashboard", "Automation"],
-            img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop",
-            colSpan: "md:col-span-2",
-            selected: true
-        }
-    ],
-    skills: [
-        "Product Strategy", "User Research", "Agile & Scrum", "A/B Testing",
-        "System Design", "API Development", "React & Node.js", "SQL & Analytics",
-        "Figma", "Jira / Linear", "Amplitude", "Technical Writing"
-    ],
+    experience: [],
+    projects: [],
+    skills: [],
     contact: {
         email: "hello@prayansh.com",
         linkedin: "https://linkedin.com",
@@ -90,26 +21,133 @@ const initialData = {
 };
 
 export const DataProvider = ({ children }) => {
-    // In a real enterprise app, this would come from Supabase/API
-    // For now, we initialize from local storage if available, else default
-    const [data, setData] = useState(() => {
-        const saved = localStorage.getItem('portfolio_data');
-        return saved ? JSON.parse(saved) : initialData;
-    });
+    const [data, setData] = useState(initialDataFallback);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        localStorage.setItem('portfolio_data', JSON.stringify(data));
-    }, [data]);
+        const fetchSupabaseData = async () => {
+            try {
+                // Fetch all data concurrently
+                const [
+                    { data: profileData },
+                    { data: experienceData },
+                    { data: projectsData },
+                    { data: skillsData }
+                ] = await Promise.all([
+                    supabase.from('profile').select('*').single(),
+                    supabase.from('experience').select('*').order('period', { ascending: false }),
+                    supabase.from('projects').select('*'),
+                    supabase.from('skills').select('*')
+                ]);
+
+                // Map Supabase profile DB columns back to frontend state shape
+                const hero = profileData ? {
+                    title: profileData.title,
+                    subtitle: profileData.subtitle,
+                    resumeUrl: profileData.resume_url
+                } : initialDataFallback.hero;
+
+                const contact = profileData ? {
+                    email: profileData.email,
+                    linkedin: profileData.linkedin,
+                    github: profileData.github,
+                    twitter: profileData.twitter
+                } : initialDataFallback.contact;
+
+                // Format projects (reconnect colSpan -> col_span)
+                const formattedProjects = (projectsData || []).map(p => ({
+                    ...p,
+                    colSpan: p.col_span
+                }));
+
+                const skillsList = (skillsData || []).map(s => s.name);
+
+                setData({
+                    hero,
+                    experience: experienceData || [],
+                    projects: formattedProjects,
+                    skills: skillsList,
+                    contact
+                });
+
+            } catch (error) {
+                console.error("Error fetching data from Supabase:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchSupabaseData();
+    }, []);
 
     const updateSection = (section, newData) => {
+        // Optimistic UI Update (for local state rendering)
         setData(prev => ({
             ...prev,
             [section]: newData
         }));
     };
 
+    const saveChangesToDatabase = async (localData) => {
+        try {
+            // 1. Save Profile (Hero & Contact)
+            const profileData = {
+                id: 1, // We only have one profile record
+                title: localData.hero.title,
+                subtitle: localData.hero.subtitle,
+                resume_url: localData.hero.resumeUrl,
+                email: localData.contact.email,
+                linkedin: localData.contact.linkedin,
+                github: localData.contact.github,
+                twitter: localData.contact.twitter
+            };
+            const { error: profileError } = await supabase.from('profile').upsert(profileData);
+            if (profileError) throw profileError;
+
+            // 2. Save Experience
+            // For simplicity, we delete all existing and insert the new ones, 
+            // to perfectly handle deletions and order changes without complex diffing.
+            await supabase.from('experience').delete().neq('id', 'temp'); // Delete all 
+            if (localData.experience.length > 0) {
+                const { error: expError } = await supabase.from('experience').insert(localData.experience);
+                if (expError) throw expError;
+            }
+
+            // 3. Save Projects
+            // Similarly, replace all projects
+            await supabase.from('projects').delete().neq('id', 'temp');
+            if (localData.projects.length > 0) {
+                const formattedProjects = localData.projects.map(p => ({
+                    ...p,
+                    col_span: p.colSpan // Convert back to DB column name
+                }));
+                // Remove frontend specific keys if any. 'colSpan' is tracked but we need to delete it from the object we upload
+                formattedProjects.forEach(p => delete p.colSpan);
+
+                const { error: projError } = await supabase.from('projects').insert(formattedProjects);
+                if (projError) throw projError;
+            }
+
+            // 4. Save Skills
+            await supabase.from('skills').delete().neq('name', 'temp');
+            if (localData.skills.length > 0) {
+                const skillRecords = localData.skills.map(s => ({ name: s }));
+                const { error: skillError } = await supabase.from('skills').insert(skillRecords);
+                if (skillError) throw skillError;
+            }
+
+            // Also update global frontend state to match
+            setData(localData);
+
+            return { success: true };
+        } catch (error) {
+            console.error("Error saving to Supabase:", error);
+            return { success: false, error: error.message };
+        }
+    };
+
     return (
-        <DataContext.Provider value={{ data, updateSection }}>
+        <DataContext.Provider value={{ data, updateSection, saveChangesToDatabase, loading }}>
             {children}
         </DataContext.Provider>
     );

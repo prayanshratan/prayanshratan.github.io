@@ -9,20 +9,23 @@ import 'react-quill/dist/quill.snow.css';
 const generateId = () => Math.random().toString(36).substring(2, 8).toUpperCase();
 
 const Admin = () => {
-    const { data, updateSection } = useData();
+    const { data, loading, updateSection, saveChangesToDatabase } = useData();
     const { logout } = useAuth();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('experience');
+    const [isSaving, setIsSaving] = useState(false);
 
     // Local state for buffering changes (Draft Mode)
     const [localData, setLocalData] = useState(data);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-    // Sync local data with global data only on initial load
-    // We don't want to overwrite user's work-in-progress if global data somehow updates
+    // Sync local data with global data when it loads from Supabase
+    // We check !hasUnsavedChanges to avoid overwriting user's work-in-progress
     useEffect(() => {
-        setLocalData(data);
-    }, []); // Empty dependency array = only load once on mount
+        if (!loading && !hasUnsavedChanges) {
+            setLocalData(data);
+        }
+    }, [data, loading]);
 
     const handleLogout = () => {
         if (hasUnsavedChanges) {
@@ -32,14 +35,17 @@ const Admin = () => {
         navigate('/login');
     };
 
-    const saveChanges = () => {
-        // Commit all local data to the global context
-        // In a real app, this would be individual API calls
-        Object.keys(localData).forEach(key => {
-            updateSection(key, localData[key]);
-        });
-        setHasUnsavedChanges(false);
-        alert("Changes saved successfully to live website!");
+    const saveChanges = async () => {
+        setIsSaving(true);
+        const { success, error } = await saveChangesToDatabase(localData);
+        setIsSaving(false);
+
+        if (success) {
+            setHasUnsavedChanges(false);
+            alert("Changes published successfully to the live website!");
+        } else {
+            alert(`Error saving changes: ${error}`);
+        }
     };
 
     // Helper to update local state
@@ -219,14 +225,14 @@ const Admin = () => {
 
                         <button
                             onClick={saveChanges}
-                            disabled={!hasUnsavedChanges}
-                            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold shadow-lg transition-all ${hasUnsavedChanges ?
+                            disabled={!hasUnsavedChanges || isSaving}
+                            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold shadow-lg transition-all ${hasUnsavedChanges && !isSaving ?
                                 'bg-brand text-white hover:bg-brand-hover hover:scale-105' :
                                 'bg-muted text-muted-foreground opacity-50 cursor-not-allowed'
                                 }`}
                         >
-                            <Save size={20} />
-                            Save Changes
+                            <Save size={20} className={isSaving ? 'animate-spin' : ''} />
+                            {isSaving ? 'Publishing...' : 'Publish Changes'}
                         </button>
                     </div>
 
