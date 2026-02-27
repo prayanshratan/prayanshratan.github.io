@@ -1,9 +1,26 @@
 import { motion } from 'framer-motion';
 import { useData } from '../context/DataContext';
 
+const MONTHS = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+
+const getSortValue = (period) => {
+    if (!period) return 0;
+    let [start] = period.split(' - ');
+    if (!start) return 0;
+
+    let [m, y] = start.trim().split(' ');
+    if (!y) {
+        y = m;
+        m = 'Jan';
+    }
+
+    return parseInt(y) * 12 + (MONTHS[m] || 0);
+};
+
 const Experience = () => {
     const { data } = useData();
-    const experiences = data.experience;
+    // Sort recent jobs first based on start date
+    const experiences = [...(data.experience || [])].sort((a, b) => getSortValue(b.period) - getSortValue(a.period));
 
     return (
         <section id="experience" className="section relative overflow-hidden">
