@@ -11,6 +11,7 @@ const initialDataFallback = {
     },
     experience: [],
     projects: [],
+    goodreads: [],
     skills: [],
     contact: {
         email: "hello@prayansh.com",
@@ -32,12 +33,14 @@ export const DataProvider = ({ children }) => {
                     { data: profileData },
                     { data: experienceData },
                     { data: projectsData },
-                    { data: skillsData }
+                    { data: skillsData },
+                    { data: goodreadsData }
                 ] = await Promise.all([
                     supabase.from('profile').select('*').single(),
                     supabase.from('experience').select('*').order('period', { ascending: false }),
                     supabase.from('projects').select('*'),
-                    supabase.from('skills').select('*')
+                    supabase.from('skills').select('*'),
+                    supabase.from('goodreads').select('*')
                 ]);
 
                 // Map Supabase profile DB columns back to frontend state shape
@@ -66,6 +69,7 @@ export const DataProvider = ({ children }) => {
                     hero,
                     experience: experienceData || [],
                     projects: formattedProjects,
+                    goodreads: goodreadsData || [],
                     skills: skillsList,
                     contact
                 });
@@ -134,6 +138,13 @@ export const DataProvider = ({ children }) => {
                 const skillRecords = localData.skills.map(s => ({ name: s }));
                 const { error: skillError } = await supabase.from('skills').insert(skillRecords);
                 if (skillError) throw skillError;
+            }
+
+            // 5. Save Goodreads
+            await supabase.from('goodreads').delete().neq('id', 'temp');
+            if (localData.goodreads && localData.goodreads.length > 0) {
+                const { error: grError } = await supabase.from('goodreads').insert(localData.goodreads);
+                if (grError) throw grError;
             }
 
             // Also update global frontend state to match

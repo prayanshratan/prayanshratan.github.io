@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react';
 import { useData } from '../context/DataContext';
 import { Link } from 'react-router-dom';
 import { Filter, ArrowLeft, ArrowUpRight } from 'lucide-react';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const AllProjects = () => {
     const { data } = useData();
@@ -26,8 +28,9 @@ const AllProjects = () => {
     }, [projects, selectedTag]);
 
     return (
-        <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-6">
-            <div className="max-w-5xl mx-auto">
+        <div className="min-h-screen bg-background text-foreground flex flex-col pt-24 pb-12 px-6">
+            <Navbar />
+            <div className="max-w-5xl mx-auto flex-1 w-full">
                 <div className="mb-12 flex flex-col items-start gap-4">
                     <Link to="/" className="text-muted-foreground hover:text-brand flex items-center gap-2 mb-4 transition-colors">
                         <ArrowLeft size={20} /> Back to Home
@@ -124,6 +127,9 @@ const AllProjects = () => {
                         </tbody>
                     </table>
                 </div>
+            </div>
+            <div className="mt-12">
+                <Footer />
             </div>
         </div>
     );

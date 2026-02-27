@@ -165,6 +165,79 @@ const Admin = () => {
         updateLocalState('skills', localData.skills.filter((_, i) => i !== index));
     };
 
+    // Goodreads
+    const addGoodreads = () => {
+        const newItem = {
+            id: generateId(),
+            title: "New Item",
+            url: "",
+            type: "article",
+            date: "January'26",
+            tags: ["AI"]
+        };
+        const updatedGoodreads = Array.isArray(localData.goodreads) ? localData.goodreads : [];
+        updateLocalState('goodreads', [newItem, ...updatedGoodreads]);
+    };
+
+    const updateGoodreads = (id, field, value) => {
+        const updated = localData.goodreads.map(item =>
+            item.id === id ? { ...item, [field]: value } : item
+        );
+        updateLocalState('goodreads', updated);
+    };
+
+    const deleteGoodreads = (id) => {
+        updateLocalState('goodreads', localData.goodreads.filter(item => item.id !== id));
+    };
+
+    const cleanUrl = (urlStr) => {
+        try {
+            const url = new URL(urlStr);
+            url.search = ''; // removes query parameters often used for tracking
+            return url.toString();
+        } catch {
+            return urlStr;
+        }
+    };
+
+    const handleDateChange = (id, yyyyMm) => {
+        if (!yyyyMm) {
+            updateGoodreads(id, 'date', "");
+            return;
+        }
+
+        if (yyyyMm.includes('-')) {
+            const [year, month] = yyyyMm.split('-');
+            const monthNum = parseInt(month, 10);
+            if (!isNaN(monthNum) && monthNum >= 1 && monthNum <= 12 && year.length >= 2) {
+                const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                const monthName = months[monthNum - 1];
+                const shortYear = year.slice(-2);
+                updateGoodreads(id, 'date', `${monthName}'${shortYear}`);
+                return;
+            }
+        }
+
+        // Fallback if browser doesn't send valid YYYY-MM
+        updateGoodreads(id, 'date', yyyyMm);
+    };
+
+    const getYYYYMM = (dateStr) => {
+        if (!dateStr || typeof dateStr !== 'string') return "";
+        if (!dateStr.includes("'")) return dateStr; // if it's fallback raw typing
+
+        const [monthName, shortYear] = dateStr.split("'");
+        if (!monthName || !shortYear) return dateStr;
+
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const monthIndex = months.findIndex(m => m.toLowerCase().startsWith(monthName.toLowerCase()));
+        if (monthIndex === -1) return dateStr;
+
+        const year = "20" + shortYear;
+        const month = String(monthIndex + 1).padStart(2, '0');
+        return `${year}-${month}`;
+    };
+
     // Contact
     const updateContact = (field, value) => {
         updateLocalState('contact', { ...localData.contact, [field]: value });
@@ -186,7 +259,7 @@ const Admin = () => {
                 </h1>
 
                 <nav className="flex-1 space-y-2">
-                    {['experience', 'projects', 'skills', 'contact', 'resume'].map(tab => (
+                    {['experience', 'projects', 'skills', 'contact', 'resume', 'goodreads'].map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
@@ -505,6 +578,78 @@ const Admin = () => {
                                     )}
                                 </div>
                             </div>
+                        </div>
+                    )}
+
+                    {/* GOODREADS TAB */}
+                    {activeTab === 'goodreads' && (
+                        <div className="space-y-6">
+                            <div className="flex justify-end mb-4">
+                                <button onClick={addGoodreads} className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover">
+                                    <Plus size={18} /> Add Item
+                                </button>
+                            </div>
+
+                            {(localData.goodreads || []).map(item => (
+                                <div key={item.id} className="p-6 bg-card border border-border rounded-xl space-y-4 shadow-sm">
+                                    <div className="flex justify-between items-start">
+                                        <h3 className="font-semibold text-lg text-brand">Item #{item.id}</h3>
+                                        <button onClick={() => deleteGoodreads(item.id)} className="text-red-500 hover:text-red-400 p-2 rounded-full hover:bg-red-500/10">
+                                            <Trash size={18} />
+                                        </button>
+                                    </div>
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-muted-foreground uppercase">Title</label>
+                                            <input
+                                                value={item.title}
+                                                onChange={(e) => updateGoodreads(item.id, 'title', e.target.value)}
+                                                className="p-2 bg-muted rounded border border-border w-full focus:ring-2 focus:ring-brand/20 outline-none"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-muted-foreground uppercase">URL</label>
+                                            <input
+                                                value={item.url}
+                                                onChange={(e) => updateGoodreads(item.id, 'url', e.target.value)}
+                                                onBlur={(e) => updateGoodreads(item.id, 'url', cleanUrl(e.target.value))}
+                                                className="p-2 bg-muted rounded border border-border w-full focus:ring-2 focus:ring-brand/20 outline-none"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-muted-foreground uppercase">Type</label>
+                                            <select
+                                                value={item.type}
+                                                onChange={(e) => updateGoodreads(item.id, 'type', e.target.value)}
+                                                className="p-2 bg-muted rounded border border-border w-full focus:ring-2 focus:ring-brand/20 outline-none"
+                                            >
+                                                <option value="article">Article/Blog</option>
+                                                <option value="book">Book</option>
+                                            </select>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-muted-foreground uppercase">Month'Year</label>
+                                            <input
+                                                type="month"
+                                                value={getYYYYMM(item.date)}
+                                                onChange={(e) => handleDateChange(item.id, e.target.value)}
+                                                className="p-2 bg-muted rounded border border-border w-full focus:ring-2 focus:ring-brand/20 outline-none"
+                                            />
+                                            <div className="text-xs text-muted-foreground mt-1">Displays as: {item.date}</div>
+                                        </div>
+                                        <div className="space-y-1 md:col-span-2">
+                                            <label className="text-xs font-semibold text-muted-foreground uppercase">Tags (comma separated)</label>
+                                            <input
+                                                value={item.tags?.join(",") || ""}
+                                                onChange={(e) => updateGoodreads(item.id, 'tags', e.target.value.split(","))}
+                                                onBlur={(e) => updateGoodreads(item.id, 'tags', (item.tags || []).map(s => s.trim()).filter(Boolean))}
+                                                className="p-2 bg-muted rounded border border-border w-full focus:ring-2 focus:ring-brand/20 outline-none"
+                                                placeholder="AI, Product Management, etc."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     )}
 

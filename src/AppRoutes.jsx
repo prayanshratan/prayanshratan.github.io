@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Admin from './pages/Admin';
 import CaseStudy from './pages/CaseStudy';
 import AllProjects from './pages/AllProjects';
+import Goodreads from './pages/Goodreads';
 
 const ProtectedRoute = ({ children }) => {
     const { isAuthenticated, isLoading } = useAuth();
@@ -23,6 +24,7 @@ const AppRoutes = () => {
         <Routes>
             <Route path="/" element={<App />} />
             <Route path="/projects" element={<AllProjects />} />
+            <Route path="/goodreads" element={<Goodreads />} />
             <Route path="/login" element={<Login />} />
             <Route
                 path="/admin"

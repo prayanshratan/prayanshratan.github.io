@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import { Sun, Moon, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
+import { useLocation, Link } from 'react-router-dom';
 
 const Navbar = () => {
     const { isDark, toggleTheme } = useTheme();
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const location = useLocation();
+    const showNavLinks = location.pathname === '/';
 
     useEffect(() => {
         const handleScroll = () => {
@@ -31,35 +34,37 @@ const Navbar = () => {
                 transition={{ duration: 0.5 }}
                 className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 rounded-full ${isScrolled
                     ? 'w-[90%] md:w-[70%] bg-white/80 dark:bg-black/80 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-lg py-2'
-                    : 'w-[95%] md:w-[80%] bg-white/50 dark:bg-black/20 backdrop-blur-md border border-white/10 dark:border-white/5 py-4'
+                    : 'w-[95%] md:w-[80%] bg-white/70 dark:bg-black/40 backdrop-blur-md border border-black/10 dark:border-white/20 shadow-md py-4'
                     }`}
             >
                 <div className="w-full px-6 flex items-center justify-between">
-                    <a href="#" className="flex items-center gap-2 group">
+                    <Link to="/" className="flex items-center gap-2 group">
                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl group-hover:rotate-12 transition-transform">
                             P
                         </div>
                         <span className="text-xl font-bold tracking-tight text-foreground">
                             Prayansh<span className="text-blue-500">.</span>
                         </span>
-                    </a>
+                    </Link>
 
                     {/* Desktop Menu */}
                     <div className="hidden md:flex items-center gap-1">
-                        <div className="flex items-center gap-1">
-                            {navLinks.map((link) => (
-                                <a
-                                    key={link.name}
-                                    href={link.href}
-                                    className="px-4 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors relative group"
-                                >
-                                    {link.name}
-                                    <span className="absolute bottom-1 left-4 right-4 h-px bg-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
-                                </a>
-                            ))}
-                        </div>
+                        {showNavLinks && (
+                            <div className="flex items-center gap-1">
+                                {navLinks.map((link) => (
+                                    <a
+                                        key={link.name}
+                                        href={link.href}
+                                        className="px-4 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors relative group"
+                                    >
+                                        {link.name}
+                                        <span className="absolute bottom-1 left-4 right-4 h-px bg-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
+                                    </a>
+                                ))}
+                            </div>
+                        )}
 
-                        <div className="w-px h-6 bg-border-light mx-4"></div>
+                        {showNavLinks && <div className="w-px h-6 bg-border-light mx-4"></div>}
 
                         <button
                             onClick={toggleTheme}
@@ -98,19 +103,31 @@ const Navbar = () => {
                         className="fixed inset-0 z-40 bg-background/95 backdrop-blur-xl pt-24 px-6 md:hidden"
                     >
                         <div className="flex flex-col gap-6">
-                            {navLinks.map((link, i) => (
+                            {showNavLinks ? (
+                                navLinks.map((link, i) => (
+                                    <motion.a
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: i * 0.1 }}
+                                        key={link.name}
+                                        href={link.href}
+                                        className="text-3xl font-bold text-foreground hover:text-blue-500"
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                    >
+                                        {link.name}
+                                    </motion.a>
+                                ))
+                            ) : (
                                 <motion.a
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: i * 0.1 }}
-                                    key={link.name}
-                                    href={link.href}
+                                    href="/"
                                     className="text-3xl font-bold text-foreground hover:text-blue-500"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
-                                    {link.name}
+                                    Back to Home
                                 </motion.a>
-                            ))}
+                            )}
                         </div>
                     </motion.div>
                 )}
