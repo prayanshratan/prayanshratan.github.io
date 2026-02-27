@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* LIGHT MODE */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f4f4f5;
+  /* Zinc 100 */
+  --bg-card: #ffffff;
+
+  --text-primary: #18181b;
+  /* Zinc 950 - High Contrast Black */
+  --text-secondary: #71717a;
+  /* Zinc 500 */
+
+  --accent-primary: #000000;
+  /* Luxury Black for brand */
+  --accent-hover: #27272a;
+
+  --border-light: #e4e4e7;
+  /* Zinc 200 */
+}
+
+[data-theme="dark"] {
+  /* DARK MODE */
+  --bg-primary: #09090b;
+  /* Zinc 950 */
+  --bg-secondary: #18181b;
+  /* Zinc 900 */
+  --bg-card: #09090b;
+
+  --text-primary: #fafafa;
+  /* Zinc 50 - High Contrast White */
+  --text-secondary: #a1a1aa;
+  /* Zinc 400 */
+
+  --accent-primary: #3b82f6;
+  /* Electric Blue for enterprise feel */
+  --accent-hover: #1d4ed8;
+
+  --border-light: #27272a;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  /* Selection Color */
+  ::selection {
+    @apply bg-brand text-white;
+    /* Removed opacity modifier to avoid build errors with CSS vars */
+  }
+}
+
+@layer components {
+
+  /* CRITICAL: Global Section Padding */
+  .section {
+    @apply py-32 md:py-48;
+    /* 8rem (128px) mobile, 12rem (192px) desktop */
+  }
+}
+
+@layer utilities {
+  .text-glow {
+    text-shadow: 0 0 40px rgba(59, 130, 246, 0.5);
+  }
+
+  .glass {
+    @apply backdrop-blur-md bg-card border border-border;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Quill Editor Overrides */
+  .ql-toolbar {
+    background-color: #f4f4f5;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    border-color: var(--border-light) !important;
+  }
+
+  .ql-container {
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+    border-color: var(--border-light) !important;
+    background-color: white;
+    /* Always white so black text is visible */
+    color: black;
+    font-size: 1rem;
+  }
+
+  .ql-editor {
+    min-height: 16rem;
+    /* h-64 equivalent */
+  }
+}
