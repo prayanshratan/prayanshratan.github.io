@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowLeft, Clock, Calendar, Share2, Bookmark } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar, Share2, Bookmark, Mail, ArrowRight } from 'lucide-react';
 import { useData } from '../context/DataContext';
 
 import { useTheme } from '../context/ThemeContext';
@@ -14,6 +14,7 @@ const CaseStudy = () => {
     const projectId = id.split('-')[0];
 
     const { data } = useData();
+    const { contact } = data;
     const { isDark, toggleTheme } = useTheme();
     const navigate = useNavigate();
     const [project, setProject] = useState(null);
@@ -187,12 +188,14 @@ const CaseStudy = () => {
                     <p className="text-muted-foreground mb-8 max-w-lg">
                         I'm always open to discussing my process and the decisions behind these projects.
                     </p>
-                    <button
-                        onClick={() => navigate('/#contact')} // Assuming home has contact section id
-                        className="px-8 py-3 bg-brand text-white rounded-full font-bold hover:shadow-lg hover:bg-brand-hover transition-all transform hover:-translate-y-1"
+                    <a
+                        href={`mailto:${contact.email}`}
+                        className="group relative inline-flex items-center gap-3 px-8 py-4 bg-foreground text-background rounded-full text-lg font-bold shadow-lg hover:shadow-brand/25 transition-all hover:-translate-y-1"
                     >
-                        Get in Touch
-                    </button>
+                        <Mail size={20} />
+                        <span>Get in Touch</span>
+                        <ArrowRight size={20} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
+                    </a>
                 </div>
             </footer>
         </article>
