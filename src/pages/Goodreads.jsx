@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useData } from '../context/DataContext';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -32,17 +32,17 @@ const KanbanColumn = ({ dateStr, items, setSelectedItem }) => {
                     <div
                         key={item.id}
                         onClick={() => setSelectedItem(item)}
-                        className="bg-card border border-border p-5 rounded-xl shadow-sm cursor-pointer hover:border-brand/50 hover:shadow-md transition-all group shrink-0"
+                        className="bg-card dark:bg-zinc-900/50 border border-border dark:border-zinc-600 p-5 rounded-xl shadow-sm cursor-pointer hover:border-brand/50 hover:shadow-md transition-all group shrink-0 flex flex-col h-[180px]"
                     >
-                        <h3 className="font-bold mb-2 text-sm md:text-base transition-colors">{item.title}</h3>
+                        <h3 className="font-bold mb-2 text-sm md:text-base transition-colors line-clamp-3" title={item.title}>{item.title}</h3>
                         {item.url && (
-                            <div className="text-[10px] text-muted-foreground truncate mb-3 group-hover:text-foreground transition-colors">
+                            <div className="text-[10px] text-muted-foreground truncate mb-3 group-hover:text-foreground transition-colors" title={item.url}>
                                 {item.url.replace(/^https?:\/\//, '').replace(/^www\./, '')}
                             </div>
                         )}
-                        <div className="flex flex-wrap gap-1.5 mt-2">
+                        <div className="flex flex-wrap gap-1.5 mt-auto overflow-hidden max-h-[22px]">
                             {item.tags?.map((t, idx) => (
-                                <span key={idx} className="bg-brand/10 text-brand text-[10px] uppercase font-bold px-2 py-0.5 rounded-md">
+                                <span key={idx} className="bg-brand/10 text-brand text-[10px] uppercase font-bold px-2 py-0.5 rounded-md truncate max-w-[120px]">
                                     {t}
                                 </span>
                             ))}
@@ -52,6 +52,70 @@ const KanbanColumn = ({ dateStr, items, setSelectedItem }) => {
             </div>
             {hasMore && !isAtBottom && (
                 <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background/90 max-h-[100%] to-transparent rounded-b-2xl flex items-end justify-center pb-2 transition-opacity duration-300">
+                    <span className="text-[10px] font-bold text-white dark:text-black bg-black/80 dark:bg-white/90 px-3 py-1 rounded-full shadow-md uppercase tracking-wider">
+                        Scroll for more
+                    </span>
+                </div>
+            )}
+        </div>
+    );
+};
+
+const BookGrid = ({ items, setSelectedItem }) => {
+    const [isAtBottom, setIsAtBottom] = useState(false);
+    const [hasMore, setHasMore] = useState(false);
+    const containerRef = useRef(null);
+
+    useEffect(() => {
+        if (containerRef.current) {
+            setHasMore(containerRef.current.scrollHeight > containerRef.current.clientHeight);
+            const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+            setIsAtBottom(scrollHeight - scrollTop <= clientHeight + 5);
+        }
+    }, [items]);
+
+    const handleScroll = (e) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.target;
+        if (scrollHeight - scrollTop <= clientHeight + 5) {
+            setIsAtBottom(true);
+        } else {
+            setIsAtBottom(false);
+        }
+    };
+
+    if (items.length === 0) {
+        return <div className="pb-20"><p className="text-muted-foreground">No books found.</p></div>;
+    }
+
+    return (
+        <div className="relative pb-20">
+            <div
+                ref={containerRef}
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 overflow-y-auto max-h-[920px] pr-2 xl:pr-4 no-scrollbar transition-all"
+                onScroll={handleScroll}
+            >
+                {items.map(item => (
+                    <div
+                        key={item.id}
+                        onClick={() => setSelectedItem(item)}
+                        className="bg-card dark:bg-zinc-900/50 border border-border dark:border-zinc-600 p-6 rounded-xl shadow-sm cursor-pointer hover:border-brand/50 transition-colors flex flex-col h-[200px]"
+                    >
+                        <h3 className="font-bold text-lg mb-1 line-clamp-3" title={item.title}>{item.title}</h3>
+                        {item.author && (
+                            <h4 className="text-sm font-medium text-muted-foreground mb-3 truncate" title={item.author}>by {item.author}</h4>
+                        )}
+                        <div className="flex flex-wrap gap-2 mt-auto overflow-hidden max-h-[28px]">
+                            {item.tags?.map((t, idx) => (
+                                <span key={idx} className="bg-brand/10 text-brand text-[10px] uppercase font-bold px-2 py-1 rounded truncate max-w-[120px]">
+                                    {t}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
+            {hasMore && !isAtBottom && (
+                <div className="pointer-events-none absolute bottom-20 left-0 right-0 h-32 bg-gradient-to-t from-background/90 max-h-[100%] to-transparent flex items-end justify-center pb-4 transition-opacity duration-300 z-10">
                     <span className="text-[10px] font-bold text-white dark:text-black bg-black/80 dark:bg-white/90 px-3 py-1 rounded-full shadow-md uppercase tracking-wider">
                         Scroll for more
                     </span>
@@ -191,27 +255,7 @@ const Goodreads = () => {
                     </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
-                    {filteredBooks.length === 0 && (
-                        <p className="text-muted-foreground">No books found.</p>
-                    )}
-                    {filteredBooks.map(item => (
-                        <div
-                            key={item.id}
-                            onClick={() => setSelectedItem(item)}
-                            className="bg-card border border-border p-6 rounded-xl shadow-sm cursor-pointer hover:border-brand/50 transition-colors"
-                        >
-                            <h3 className="font-bold text-lg mb-3">{item.title}</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {item.tags?.map((t, idx) => (
-                                    <span key={idx} className="bg-brand/10 text-brand text-[10px] uppercase font-bold px-2 py-1 rounded">
-                                        {t}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                <BookGrid items={filteredBooks} setSelectedItem={setSelectedItem} />
             </main>
 
             <div className="mt-12 w-full">
@@ -234,7 +278,7 @@ const Goodreads = () => {
 
                         <div className="mb-6 flex items-center gap-3">
                             <span className="bg-brand/10 text-brand text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-widest">
-                                {selectedItem.type}
+                                {selectedItem.type === 'article' ? 'blog' : selectedItem.type}
                             </span>
                             {selectedItem.date && (
                                 <span className="text-sm font-medium text-muted-foreground">
@@ -243,7 +287,10 @@ const Goodreads = () => {
                             )}
                         </div>
 
-                        <h2 className="text-3xl font-bold mb-6 leading-tight">{selectedItem.title}</h2>
+                        <h2 className="text-3xl font-bold mb-2 leading-tight">{selectedItem.title}</h2>
+                        {selectedItem.author && selectedItem.type === 'book' && (
+                            <h3 className="text-xl font-medium text-muted-foreground mb-6">by {selectedItem.author}</h3>
+                        )}
 
                         <div className="flex flex-wrap gap-2 mb-8">
                             {selectedItem.tags?.map((t, idx) => (

@@ -173,7 +173,8 @@ const Admin = () => {
             url: "",
             type: "article",
             date: "January'26",
-            tags: ["AI"]
+            tags: ["AI"],
+            author: ""
         };
         const updatedGoodreads = Array.isArray(localData.goodreads) ? localData.goodreads : [];
         updateLocalState('goodreads', [newItem, ...updatedGoodreads]);
@@ -637,6 +638,17 @@ const Admin = () => {
                                             />
                                             <div className="text-xs text-muted-foreground mt-1">Displays as: {item.date}</div>
                                         </div>
+                                        {item.type === 'book' && (
+                                            <div className="space-y-1 md:col-span-2">
+                                                <label className="text-xs font-semibold text-muted-foreground uppercase">Author</label>
+                                                <input
+                                                    value={item.author || ""}
+                                                    onChange={(e) => updateGoodreads(item.id, 'author', e.target.value)}
+                                                    className="p-2 bg-muted rounded border border-border w-full focus:ring-2 focus:ring-brand/20 outline-none"
+                                                    placeholder="e.g. Marty Cagan"
+                                                />
+                                            </div>
+                                        )}
                                         <div className="space-y-1 md:col-span-2">
                                             <label className="text-xs font-semibold text-muted-foreground uppercase">Tags (comma separated)</label>
                                             <input
