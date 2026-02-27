@@ -9,6 +9,29 @@ import 'react-quill/dist/quill.snow.css';
 
 const generateId = () => Math.random().toString(36).substring(2, 8).toUpperCase();
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const YEARS = Array.from({ length: 30 }, (_, i) => new Date().getFullYear() - i);
+
+const parsePeriod = (period) => {
+    if (!period) return { startMonth: 'Jan', startYear: '2024', endMonth: 'Present', endYear: '' };
+    let [start, end] = period.split(' - ');
+    if (!end) end = 'Present';
+    if (!start) start = 'Jan 2024';
+
+    let [sm, sy] = start.trim().split(' ');
+    if (!sy) { sy = sm; sm = 'Jan'; } // Handle "2021 - 2023" legacy
+
+    let em = 'Present', ey = '';
+    if (end.trim() !== 'Present') {
+        let endParts = end.trim().split(' ');
+        em = endParts[0] || 'Jan';
+        ey = endParts[1] || em;
+        if (ey === em) em = 'Jan'; // handle legacy "2023"
+    }
+
+    return { startMonth: sm, startYear: sy, endMonth: em, endYear: ey };
+};
+
 const Admin = () => {
     const { data, loading, updateSection, saveChangesToDatabase } = useData();
     const { logout } = useAuth();
@@ -100,6 +123,14 @@ const Admin = () => {
             item.id === id ? { ...item, [field]: value } : item
         );
         updateLocalState('experience', updated);
+    };
+
+    const updatePeriodPart = (id, currentPeriod, part, value) => {
+        const p = parsePeriod(currentPeriod);
+        p[part] = value;
+        const startStr = `${p.startMonth} ${p.startYear}`;
+        const endStr = p.endMonth === 'Present' ? 'Present' : `${p.endMonth} ${p.endYear || p.startYear}`;
+        updateExperience(id, 'period', `${startStr} - ${endStr}`);
     };
 
     const deleteExperience = (id) => {
@@ -222,42 +253,18 @@ const Admin = () => {
         }
     };
 
-    const handleDateChange = (id, yyyyMm) => {
-        if (!yyyyMm) {
-            updateGoodreads(id, 'date', "");
-            return;
-        }
+    const FULL_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-        if (yyyyMm.includes('-')) {
-            const [year, month] = yyyyMm.split('-');
-            const monthNum = parseInt(month, 10);
-            if (!isNaN(monthNum) && monthNum >= 1 && monthNum <= 12 && year.length >= 2) {
-                const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                const monthName = months[monthNum - 1];
-                const shortYear = year.slice(-2);
-                updateGoodreads(id, 'date', `${monthName}'${shortYear}`);
-                return;
-            }
-        }
-
-        // Fallback if browser doesn't send valid YYYY-MM
-        updateGoodreads(id, 'date', yyyyMm);
+    const parseGoodreadsDate = (dateStr) => {
+        if (!dateStr || !dateStr.includes("'")) return { month: 'January', year: String(new Date().getFullYear()) };
+        const [month, shortYear] = dateStr.split("'");
+        return { month: month || 'January', year: "20" + (shortYear || "24") };
     };
 
-    const getYYYYMM = (dateStr) => {
-        if (!dateStr || typeof dateStr !== 'string') return "";
-        if (!dateStr.includes("'")) return dateStr; // if it's fallback raw typing
-
-        const [monthName, shortYear] = dateStr.split("'");
-        if (!monthName || !shortYear) return dateStr;
-
-        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        const monthIndex = months.findIndex(m => m.toLowerCase().startsWith(monthName.toLowerCase()));
-        if (monthIndex === -1) return dateStr;
-
-        const year = "20" + shortYear;
-        const month = String(monthIndex + 1).padStart(2, '0');
-        return `${year}-${month}`;
+    const updateGoodreadsDatePart = (id, currentStr, part, value) => {
+        const d = parseGoodreadsDate(currentStr);
+        d[part] = value;
+        updateGoodreads(id, 'date', `${d.month}'${d.year.slice(-2)}`);
     };
 
     // Contact
@@ -363,11 +370,45 @@ const Admin = () => {
                                         </div>
                                         <div className="space-y-1">
                                             <label className="text-xs font-semibold text-muted-foreground uppercase">Timeline</label>
-                                            <input
-                                                value={exp.period}
-                                                onChange={(e) => updateExperience(exp.id, 'period', e.target.value)}
-                                                className="p-2 bg-muted rounded border border-border w-full focus:ring-2 focus:ring-brand/20 outline-none"
-                                            />
+                                            <div className="flex flex-col gap-2 mt-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs text-muted-foreground w-10">Start:</span>
+                                                    <select
+                                                        value={parsePeriod(exp.period).startMonth}
+                                                        onChange={(e) => updatePeriodPart(exp.id, exp.period, 'startMonth', e.target.value)}
+                                                        className="p-2 bg-muted rounded border border-border w-20 focus:ring-2 focus:ring-brand/20 outline-none"
+                                                    >
+                                                        {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+                                                    </select>
+                                                    <select
+                                                        value={parsePeriod(exp.period).startYear}
+                                                        onChange={(e) => updatePeriodPart(exp.id, exp.period, 'startYear', e.target.value)}
+                                                        className="p-2 bg-muted rounded border border-border w-24 focus:ring-2 focus:ring-brand/20 outline-none"
+                                                    >
+                                                        {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                                                    </select>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs text-muted-foreground w-10">End:</span>
+                                                    <select
+                                                        value={parsePeriod(exp.period).endMonth}
+                                                        onChange={(e) => updatePeriodPart(exp.id, exp.period, 'endMonth', e.target.value)}
+                                                        className="p-2 bg-muted rounded border border-border w-24 focus:ring-2 focus:ring-brand/20 outline-none"
+                                                    >
+                                                        <option value="Present">Present</option>
+                                                        {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+                                                    </select>
+                                                    {parsePeriod(exp.period).endMonth !== 'Present' && (
+                                                        <select
+                                                            value={parsePeriod(exp.period).endYear}
+                                                            onChange={(e) => updatePeriodPart(exp.id, exp.period, 'endYear', e.target.value)}
+                                                            className="p-2 bg-muted rounded border border-border w-24 focus:ring-2 focus:ring-brand/20 outline-none"
+                                                        >
+                                                            {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                                                        </select>
+                                                    )}
+                                                </div>
+                                            </div>
                                         </div>
                                         <div className="space-y-1">
                                             <label className="text-xs font-semibold text-muted-foreground uppercase">Tags</label>
@@ -654,16 +695,31 @@ const Admin = () => {
                                                 <option value="book">Book</option>
                                             </select>
                                         </div>
-                                        <div className="space-y-1">
-                                            <label className="text-xs font-semibold text-muted-foreground uppercase">Month'Year</label>
-                                            <input
-                                                type="month"
-                                                value={getYYYYMM(item.date)}
-                                                onChange={(e) => handleDateChange(item.id, e.target.value)}
-                                                className="p-2 bg-muted rounded border border-border w-full focus:ring-2 focus:ring-brand/20 outline-none"
-                                            />
-                                            <div className="text-xs text-muted-foreground mt-1">Displays as: {item.date}</div>
-                                        </div>
+                                        {item.type !== 'book' && (
+                                            <div className="space-y-1">
+                                                <label className="text-xs font-semibold text-muted-foreground uppercase">Month'Year</label>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <select
+                                                        value={parseGoodreadsDate(item.date).month}
+                                                        onChange={(e) => updateGoodreadsDatePart(item.id, item.date, 'month', e.target.value)}
+                                                        className="p-2 bg-muted rounded border border-border w-28 focus:ring-2 focus:ring-brand/20 outline-none"
+                                                    >
+                                                        {FULL_MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+                                                    </select>
+                                                    <select
+                                                        value={parseGoodreadsDate(item.date).year}
+                                                        onChange={(e) => updateGoodreadsDatePart(item.id, item.date, 'year', e.target.value)}
+                                                        className="p-2 bg-muted rounded border border-border w-24 focus:ring-2 focus:ring-brand/20 outline-none"
+                                                    >
+                                                        {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                                                    </select>
+                                                </div>
+                                                {/* Legacy fallback display */}
+                                                {item.date && !item.date.includes("'") && (
+                                                    <div className="text-xs text-muted-foreground mt-1">Raw string mode: {item.date}</div>
+                                                )}
+                                            </div>
+                                        )}
                                         {item.type === 'book' && (
                                             <div className="space-y-1 md:col-span-2">
                                                 <label className="text-xs font-semibold text-muted-foreground uppercase">Author</label>
