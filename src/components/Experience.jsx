@@ -43,9 +43,10 @@ const Experience = () => {
                                     <span className="text-brand font-mono text-sm mb-2 block">{exp.period}</span>
                                     <h3 className="text-2xl font-bold text-foreground mb-1">{exp.role}</h3>
                                     <h4 className="text-lg text-muted-foreground mb-4">{exp.company}</h4>
-                                    <p className="text-muted-foreground/80 leading-relaxed mb-6 text-sm">
-                                        {exp.description}
-                                    </p>
+                                    <div
+                                        className="text-muted-foreground/80 leading-relaxed mb-6 text-sm prose dark:prose-invert prose-brand max-w-none"
+                                        dangerouslySetInnerHTML={{ __html: exp.description }}
+                                    />
                                     <div className={`flex flex-wrap gap-2 ${index % 2 !== 0 ? 'justify-start' : 'justify-end'}`}>
                                         {exp.tags.map((tag) => (
                                             <span

@@ -381,11 +381,16 @@ const Admin = () => {
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-xs font-semibold text-muted-foreground uppercase">Description</label>
-                                        <textarea
-                                            value={exp.description}
-                                            onChange={(e) => updateExperience(exp.id, 'description', e.target.value)}
-                                            className="w-full p-2 bg-muted rounded border border-border h-24 focus:ring-2 focus:ring-brand/20 outline-none resize-none"
-                                        />
+                                        <div className="bg-card text-card-foreground quill-container rounded-lg border border-border overflow-hidden">
+                                            <ReactQuill
+                                                theme="snow"
+                                                value={exp.description || ''}
+                                                onChange={(content) => updateExperience(exp.id, 'description', content)}
+                                                modules={quillModules}
+                                                formats={quillFormats}
+                                                className="h-[200px]"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             ))}
