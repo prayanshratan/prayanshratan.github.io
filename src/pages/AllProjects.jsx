@@ -36,7 +36,7 @@ const AllProjects = () => {
                         <ArrowLeft size={20} /> Back to Home
                     </Link>
                     <h1 className="text-4xl md:text-5xl font-bold">Prayansh's Product Case Studies</h1>
-                    <p className="text-xl text-muted-foreground">All my case studies, product requirement documents, and technical blogs.</p>
+                    <p className="text-xl text-muted-foreground">All my case studies and technical blogs.</p>
                 </div>
 
                 {/* Filter Actions */}
