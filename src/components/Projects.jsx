@@ -88,7 +88,7 @@ const Projects = () => {
                     <span className="text-brand font-semibold tracking-wider uppercase text-sm mb-2 block">Portfolio</span>
                     <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">Selected Works</h2>
                     <p className="text-lg text-muted-foreground font-light mb-2">
-                        A curation of products I've built, managed, and scaled.
+                        A curation of projects I have worked on.
                     </p>
                     <Link to="/projects" className="text-brand hover:underline font-medium inline-flex items-center gap-1">
                         See all case studies here <ArrowUpRight size={16} />
