@@ -3,6 +3,7 @@ import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Trash, LogOut, Save, X, FileText, Upload, Image as ImageIcon, AlertCircle, ArrowUpRight } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -110,7 +111,6 @@ const Admin = () => {
         const newProject = {
             id: generateId(),
             title: "New Project",
-            category: "Category",
             description: "Project description...",
             tech: ["React"],
             img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop", // Default placeholder
@@ -138,11 +138,32 @@ const Admin = () => {
         updateLocalState('projects', updated);
     };
 
-    const handleProjectImageUpload = (id, e) => {
+    const handleProjectImageUpload = async (id, e) => {
         const file = e.target.files[0];
         if (file) {
-            const url = URL.createObjectURL(file);
-            updateProject(id, 'img', url);
+            // Optimistic UI: Immediately show the image thumbnail
+            const objectUrl = URL.createObjectURL(file);
+            updateProject(id, 'img', objectUrl);
+
+            // Upload to Supabase Storage bucket named 'portfolio'
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+            const filePath = `projects/${fileName}`;
+
+            // Add upsert: true in case of conflicts
+            const { error: uploadError } = await supabase.storage
+                .from('portfolio')
+                .upload(filePath, file, { upsert: true });
+
+            if (uploadError) {
+                alert(`Image upload failed: ${uploadError.message}\n\nPlease ensure your 'portfolio' bucket has Storage Policies set to allow INSERT/SELECT operations.`);
+                console.error('Supabase upload error:', uploadError);
+                return;
+            }
+
+            // Replace the local blob URL with the actual Supabase URL
+            const { data } = supabase.storage.from('portfolio').getPublicUrl(filePath);
+            updateProject(id, 'img', data.publicUrl);
         }
     };
 
@@ -399,7 +420,6 @@ const Admin = () => {
                                             </div>
                                             <div>
                                                 <h3 className="font-bold text-lg">{project.title || 'Untitled Project'}</h3>
-                                                <p className="text-xs text-muted-foreground">{project.category}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-4">
@@ -424,14 +444,6 @@ const Admin = () => {
                                             <input
                                                 value={project.title}
                                                 onChange={(e) => updateProject(project.id, 'title', e.target.value)}
-                                                className="p-2 bg-muted rounded border border-border w-full mobile-input"
-                                            />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <label className="text-xs font-semibold text-muted-foreground uppercase">Category</label>
-                                            <input
-                                                value={project.category}
-                                                onChange={(e) => updateProject(project.id, 'category', e.target.value)}
                                                 className="p-2 bg-muted rounded border border-border w-full mobile-input"
                                             />
                                         </div>
@@ -464,6 +476,15 @@ const Admin = () => {
                                                 placeholder="https://medium.com/@username/story-slug"
                                             />
                                         </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-xs font-semibold text-muted-foreground uppercase">Image URL (Overrides Upload)</label>
+                                        <input
+                                            value={project.img || ''}
+                                            onChange={(e) => updateProject(project.id, 'img', e.target.value)}
+                                            className="p-2 bg-muted rounded border border-border w-full mobile-input"
+                                            placeholder="https://images.unsplash.com/..."
+                                        />
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-xs font-semibold text-muted-foreground uppercase">Description</label>
@@ -666,8 +687,8 @@ const Admin = () => {
                     )}
 
                 </div>
-            </main>
-        </div>
+            </main >
+        </div >
     );
 };
 

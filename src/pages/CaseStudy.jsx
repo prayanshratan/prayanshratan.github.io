@@ -107,11 +107,6 @@ const CaseStudy = () => {
                             {tag}
                         </span>
                     ))}
-                    {project.category && (
-                        <span className="px-3 py-1 bg-brand/10 text-brand rounded-full text-xs font-bold tracking-wide border border-brand/20 uppercase">
-                            {project.category}
-                        </span>
-                    )}
                 </div>
 
                 <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-foreground mb-8 leading-tight">

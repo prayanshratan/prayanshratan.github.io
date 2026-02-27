@@ -37,10 +37,7 @@ function Card({ project, index }) {
 
             <div className="flex flex-col h-full relative z-10">
                 <div className="p-8 pb-0 flex-grow">
-                    <div className="flex justify-between items-start mb-4">
-                        <span className="text-xs font-bold tracking-widest uppercase text-brand mb-2 block">
-                            {project.category}
-                        </span>
+                    <div className="flex justify-end items-start mb-2">
                         <Link
                             to={`/case-studies/${project.id}-${project.title.toLowerCase().replace(/\s+/g, '-')}`}
                             className="p-2 rounded-full bg-muted text-foreground transform translate-x-2 -translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300 hover:bg-brand hover:text-white z-20 cursor-pointer"

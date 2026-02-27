@@ -57,10 +57,12 @@ export const DataProvider = ({ children }) => {
                     twitter: profileData.twitter
                 } : initialDataFallback.contact;
 
-                // Format projects (reconnect colSpan -> col_span)
+                // Format projects (reconnect colSpan -> col_span, caseStudy -> case_study, mediumLink -> medium_link)
                 const formattedProjects = (projectsData || []).map(p => ({
                     ...p,
-                    colSpan: p.col_span
+                    colSpan: p.col_span,
+                    caseStudy: p.case_study,
+                    mediumLink: p.medium_link
                 }));
 
                 const skillsList = (skillsData || []).map(s => s.name);
@@ -123,10 +125,16 @@ export const DataProvider = ({ children }) => {
             if (localData.projects.length > 0) {
                 const formattedProjects = localData.projects.map(p => ({
                     ...p,
-                    col_span: p.colSpan // Convert back to DB column name
+                    col_span: p.colSpan, // Convert back to DB column name
+                    case_study: p.caseStudy,
+                    medium_link: p.mediumLink
                 }));
-                // Remove frontend specific keys if any. 'colSpan' is tracked but we need to delete it from the object we upload
-                formattedProjects.forEach(p => delete p.colSpan);
+                // Remove frontend specific keys if any
+                formattedProjects.forEach(p => {
+                    delete p.colSpan;
+                    delete p.caseStudy;
+                    delete p.mediumLink;
+                });
 
                 const { error: projError } = await supabase.from('projects').insert(formattedProjects);
                 if (projError) throw projError;

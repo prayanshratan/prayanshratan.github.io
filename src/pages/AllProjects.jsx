@@ -99,9 +99,6 @@ const AllProjects = () => {
 
                                             {/* Mobile only tags display directly under title */}
                                             <div className="flex flex-wrap gap-2 mt-3 md:hidden">
-                                                <span className="px-2 py-0.5 text-[10px] font-medium rounded-md bg-brand/10 text-brand border border-brand/20">
-                                                    {project.category}
-                                                </span>
                                                 {project.tech && project.tech.map(t => (
                                                     <span key={t} className="px-2 py-0.5 text-[10px] font-medium rounded-md bg-muted text-muted-foreground border border-border">
                                                         {t}
@@ -111,9 +108,6 @@ const AllProjects = () => {
                                         </td>
                                         <td className="py-4 px-6 border-l border-border hidden md:table-cell">
                                             <div className="flex flex-wrap gap-2">
-                                                <span className="px-2.5 py-1 text-xs font-medium rounded-md bg-brand/10 text-brand border border-brand/20">
-                                                    {project.category}
-                                                </span>
                                                 {project.tech && project.tech.map(t => (
                                                     <span key={t} className="px-2.5 py-1 text-xs font-medium rounded-md bg-muted text-muted-foreground border border-border">
                                                         {t}
