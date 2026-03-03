@@ -413,8 +413,9 @@ const Admin = () => {
                                         <div className="space-y-1">
                                             <label className="text-xs font-semibold text-muted-foreground uppercase">Tags</label>
                                             <input
-                                                value={exp.tags?.join(", ")}
-                                                onChange={(e) => updateExperience(exp.id, 'tags', e.target.value.split(",").map(s => s.trim()))}
+                                                value={exp.tags?.join(",")}
+                                                onChange={(e) => updateExperience(exp.id, 'tags', e.target.value.split(","))}
+                                                onBlur={(e) => updateExperience(exp.id, 'tags', (exp.tags || []).map(s => s.trim()).filter(Boolean))}
                                                 className="p-2 bg-muted rounded border border-border w-full focus:ring-2 focus:ring-brand/20 outline-none"
                                                 placeholder="Strategy, Design, etc."
                                             />
@@ -507,8 +508,9 @@ const Admin = () => {
                                         <div className="space-y-1">
                                             <label className="text-xs font-semibold text-muted-foreground uppercase">Tags / Tech Stack</label>
                                             <input
-                                                value={project.tech?.join(", ")}
-                                                onChange={(e) => updateProject(project.id, 'tech', e.target.value.split(",").map(t => t.trim()))}
+                                                value={project.tech?.join(",")}
+                                                onChange={(e) => updateProject(project.id, 'tech', e.target.value.split(","))}
+                                                onBlur={(e) => updateProject(project.id, 'tech', (project.tech || []).map(t => t.trim()).filter(Boolean))}
                                                 className="p-2 bg-muted rounded border border-border w-full mobile-input"
                                                 placeholder="React, Node, etc"
                                             />
