@@ -61,7 +61,7 @@ const Experience = () => {
                                     <h3 className="text-2xl font-bold text-foreground mb-1">{exp.role}</h3>
                                     <h4 className="text-lg text-muted-foreground mb-4">{exp.company}</h4>
                                     <div
-                                        className="text-muted-foreground/80 leading-relaxed mb-6 text-sm prose dark:prose-invert prose-brand max-w-none"
+                                        className="text-muted-foreground/80 leading-relaxed mb-6 text-sm prose dark:prose-invert prose-brand max-w-none text-left break-words overflow-hidden"
                                         dangerouslySetInnerHTML={{ __html: exp.description }}
                                     />
                                     <div className={`flex flex-wrap gap-2 ${index % 2 !== 0 ? 'justify-start' : 'justify-end'}`}>
