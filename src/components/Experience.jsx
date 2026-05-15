@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useData } from '../context/DataContext';
+import SectionLoader from './SectionLoader';
 
 const MONTHS = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
 
@@ -18,7 +19,7 @@ const getSortValue = (period) => {
 };
 
 const Experience = () => {
-    const { data } = useData();
+    const { data, loading } = useData();
     // Sort recent jobs first based on start date
     const sortedExperiences = [...(data.experience || [])].sort((a, b) => getSortValue(b.period) - getSortValue(a.period));
 
@@ -59,7 +60,10 @@ const Experience = () => {
                     </p>
                 </motion.div>
 
-                <div className="space-y-16 relative">
+                {loading ? (
+                    <SectionLoader text="Loading timeline from Supabase..." />
+                ) : (
+                    <div className="space-y-16 relative">
                     {/* MOVED: Line is now relative to the content container, so it starts after the header */}
                     <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-gray-300 dark:via-brand/20 to-transparent transform md:-translate-x-1/2"></div>
 
@@ -130,6 +134,7 @@ const Experience = () => {
                         );
                     })}
                 </div>
+                )}
             </div>
         </section>
     );
