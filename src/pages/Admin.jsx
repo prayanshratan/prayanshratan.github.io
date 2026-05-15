@@ -4,8 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Trash, LogOut, Save, X, FileText, Upload, Image as ImageIcon, AlertCircle, ArrowUpRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 const generateId = () => Math.random().toString(36).substring(2, 8).toUpperCase();
 
@@ -94,14 +94,7 @@ const Admin = () => {
         ],
     };
 
-    const quillFormats = [
-        'header',
-        'bold', 'italic', 'underline', 'strike',
-        'blockquote', 'code-block',
-        'list', 'bullet',
-        'script', 'indent',
-        'link'
-    ];
+
 
     // --- Handlers for Sections ---
 
@@ -142,6 +135,7 @@ const Admin = () => {
         const newProject = {
             id: generateId(),
             title: "New Project",
+            category: "New Category",
             description: "Project description...",
             tech: ["React"],
             img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop", // Default placeholder
@@ -429,7 +423,6 @@ const Admin = () => {
                                                 value={exp.description || ''}
                                                 onChange={(content) => updateExperience(exp.id, 'description', content)}
                                                 modules={quillModules}
-                                                formats={quillFormats}
                                                 className="h-[200px]"
                                             />
                                         </div>
@@ -495,6 +488,15 @@ const Admin = () => {
                                             />
                                         </div>
                                         <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-muted-foreground uppercase">Category</label>
+                                            <input
+                                                value={project.category || ''}
+                                                onChange={(e) => updateProject(project.id, 'category', e.target.value)}
+                                                className="p-2 bg-muted rounded border border-border w-full mobile-input"
+                                                placeholder="e.g. B2B SaaS"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
                                             <label className="text-xs font-semibold text-muted-foreground uppercase">Grid Size</label>
                                             <select
                                                 value={project.colSpan}
@@ -555,7 +557,6 @@ const Admin = () => {
                                                 value={project.caseStudy || ''}
                                                 onChange={(value) => updateProject(project.id, 'caseStudy', value)}
                                                 modules={quillModules}
-                                                formats={quillFormats}
                                                 className="h-64"
                                             />
                                         </div>
