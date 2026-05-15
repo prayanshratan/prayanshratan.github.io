@@ -60,7 +60,7 @@ VALUES (
     1,
     'Building products
 that shape the future.',
-    'I''m a Product Manager who codes. I utilize my engineering background to bridge the technical gap, translating complex problems into elegant, scalable solutions.',
+    'I''m a Senior Product Manager who codes. I utilize my engineering background to bridge the technical gap, translating complex problems into elegant, scalable solutions.',
     '/resume.pdf',
     'hello@prayansh.com',
     'https://linkedin.com',
@@ -69,7 +69,8 @@ that shape the future.',
 ) ON CONFLICT DO NOTHING;
 
 INSERT INTO experience (id, role, company, period, description, tags) VALUES
-('E7B2K9', 'Product Manager', 'Current Company', '2023 - Present', 'Leading the product vision and strategy for enterprise solutions. Collaborating with engineering and design teams.', ARRAY['Strategy', 'Roadmapping', 'Agile']),
+('S8L9P1', 'Senior Product Manager', 'Current Company', 'Mar 2026 - Present', 'Leading the product vision and strategy for enterprise solutions. Mentoring junior PMs and collaborating with engineering and design teams.', ARRAY['Strategy', 'Leadership', 'Agile']),
+('E7B2K9', 'Product Manager', 'Current Company', 'Jun 2024 - Feb 2026', 'Led core product initiatives resulting in a 20% increase in active users. Streamlined roadmapping processes.', ARRAY['Roadmapping', 'Analytics', 'Delivery']),
 ('M4N1X8', 'Associate Product Manager', 'Previous Tech Co.', '2021 - 2023', 'Managed the full product lifecycle for consumer-facing mobile applications. Increased user retention by 15%.', ARRAY['User Research', 'Data Analysis', 'Mobile']),
 ('P9Q3R5', 'Software Developer', 'Tech Startup', '2019 - 2021', 'Built scalable web applications using React and Node.js. Transitioned into product management bridging technical constraints.', ARRAY['Full Stack', 'React', 'System Design'])
 ON CONFLICT DO NOTHING;
