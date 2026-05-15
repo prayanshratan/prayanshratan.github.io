@@ -2,6 +2,7 @@ import { motion, useMotionTemplate, useMotionValue } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { Link } from 'react-router-dom';
+import SectionLoader from './SectionLoader';
 
 function Card({ project, index }) {
     let mouseX = useMotionValue(0);
@@ -77,7 +78,7 @@ function Card({ project, index }) {
 }
 
 const Projects = () => {
-    const { data } = useData();
+    const { data, loading } = useData();
     // Filter only selected projects and take top 4
     const displayProjects = data.projects.filter(p => p.selected).slice(0, 4);
 
@@ -95,21 +96,27 @@ const Projects = () => {
                     </Link>
                 </motion.div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {displayProjects.map((project, index) => (
-                        <Card key={project.id} project={project} index={index} />
-                    ))}
-                </div>
+                {loading ? (
+                    <SectionLoader text="Loading projects from Supabase..." />
+                ) : (
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {displayProjects.map((project, index) => (
+                                <Card key={project.id} project={project} index={index} />
+                            ))}
+                        </div>
 
-                <div className="mt-16 flex justify-center">
-                    <Link
-                        to="/projects"
-                        className="group flex items-center gap-2 px-8 py-4 bg-transparent border-2 border-brand text-brand hover:bg-brand hover:text-white font-bold rounded-full transition-all duration-300"
-                    >
-                        View All Project Case Studies
-                        <ArrowUpRight size={20} className="transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                    </Link>
-                </div>
+                        <div className="mt-16 flex justify-center">
+                            <Link
+                                to="/projects"
+                                className="group flex items-center gap-2 px-8 py-4 bg-transparent border-2 border-brand text-brand hover:bg-brand hover:text-white font-bold rounded-full transition-all duration-300"
+                            >
+                                View All Project Case Studies
+                                <ArrowUpRight size={20} className="transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                            </Link>
+                        </div>
+                    </>
+                )}
             </div>
         </section>
     );

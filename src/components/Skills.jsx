@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
 import { useData } from '../context/DataContext';
+import SectionLoader from './SectionLoader';
 
 const Skills = () => {
-    const { data } = useData();
+    const { data, loading } = useData();
 
     return (
         <section id="skills" className="section relative overflow-hidden bg-background">
@@ -21,21 +22,25 @@ const Skills = () => {
                     </h2>
                 </motion.div>
 
-                <div className="flex flex-wrap justify-center max-w-4xl mx-auto gap-3">
-                    {data.skills.map((skill, index) => (
-                        <motion.div
-                            key={index}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            whileHover={{ scale: 1.05 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.2, delay: index * 0.05 }}
-                            className="px-6 py-3 rounded-xl bg-muted/50 border border-white/5 backdrop-blur-sm text-muted-foreground hover:text-foreground hover:border-brand/50 hover:bg-brand/5 transition-all cursor-default"
-                        >
-                            <span className="font-medium">{skill}</span>
-                        </motion.div>
-                    ))}
-                </div>
+                {loading ? (
+                    <SectionLoader text="Loading skills from Supabase..." />
+                ) : (
+                    <div className="flex flex-wrap justify-center max-w-4xl mx-auto gap-3">
+                        {data.skills.map((skill, index) => (
+                            <motion.div
+                                key={index}
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                whileHover={{ scale: 1.05 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.2, delay: index * 0.05 }}
+                                className="px-6 py-3 rounded-xl bg-muted/50 border border-white/5 backdrop-blur-sm text-muted-foreground hover:text-foreground hover:border-brand/50 hover:bg-brand/5 transition-all cursor-default"
+                            >
+                                <span className="font-medium">{skill}</span>
+                            </motion.div>
+                        ))}
+                    </div>
+                )}
             </div>
         </section>
     );

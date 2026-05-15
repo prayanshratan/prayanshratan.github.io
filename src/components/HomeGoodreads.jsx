@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { Link } from 'react-router-dom';
+import SectionLoader from './SectionLoader';
 
 function GoodreadsCard({ item, index, onClick }) {
     return (
@@ -50,7 +51,7 @@ function GoodreadsCard({ item, index, onClick }) {
 }
 
 const HomeGoodreads = () => {
-    const { data } = useData();
+    const { data, loading } = useData();
     const [selectedItem, setSelectedItem] = useState(null);
 
     const allItems = data.goodreads || [];
@@ -60,7 +61,7 @@ const HomeGoodreads = () => {
     // Interleave them to make it look nice, or just combine
     const displayItems = [...latestBooks, ...latestBlogs];
 
-    if (displayItems.length === 0) return null;
+    if (!loading && displayItems.length === 0) return null;
 
     return (
         <section id="goodreads" className="section relative bg-muted/30">
@@ -76,21 +77,27 @@ const HomeGoodreads = () => {
                     </Link>
                 </motion.div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {displayItems.map((item, index) => (
-                        <GoodreadsCard key={item.id} item={item} index={index} onClick={() => setSelectedItem(item)} />
-                    ))}
-                </div>
+                {loading ? (
+                    <SectionLoader text="Fetching recent reads from Supabase..." />
+                ) : (
+                    <>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {displayItems.map((item, index) => (
+                                <GoodreadsCard key={item.id} item={item} index={index} onClick={() => setSelectedItem(item)} />
+                            ))}
+                        </div>
 
-                <div className="mt-16 flex justify-center">
-                    <Link
-                        to="/goodreads"
-                        className="group flex items-center gap-2 px-8 py-4 bg-transparent border-2 border-brand text-brand hover:bg-brand hover:text-white font-bold rounded-full transition-all duration-300"
-                    >
-                        View Full Library
-                        <ArrowUpRight size={20} className="transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                    </Link>
-                </div>
+                        <div className="mt-16 flex justify-center">
+                            <Link
+                                to="/goodreads"
+                                className="group flex items-center gap-2 px-8 py-4 bg-transparent border-2 border-brand text-brand hover:bg-brand hover:text-white font-bold rounded-full transition-all duration-300"
+                            >
+                                View Full Library
+                                <ArrowUpRight size={20} className="transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                            </Link>
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Modal */}
