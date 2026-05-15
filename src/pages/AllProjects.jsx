@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useData } from '../context/DataContext';
 import { Link } from 'react-router-dom';
-import { Filter, ArrowLeft, ArrowUpRight } from 'lucide-react';
+import { Filter, ArrowLeft, ArrowUpRight, AlertTriangle } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -36,7 +36,29 @@ const AllProjects = () => {
                         <ArrowLeft size={20} /> Back to Home
                     </Link>
                     <h1 className="text-4xl md:text-5xl font-bold">Prayansh's Product Case Studies</h1>
-                    <p className="text-xl text-muted-foreground">All my case studies and technical blogs.</p>
+                    <p className="text-xl text-muted-foreground mb-6">All my case studies and technical blogs.</p>
+                    
+                    {/* Prominent amber under-construction banner with dark mode support */}
+                    <div className="w-full bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-5 mb-4 shadow-sm">
+                        <div className="bg-amber-100 dark:bg-amber-500/20 p-3.5 rounded-xl shrink-0 text-amber-600 dark:text-amber-400">
+                            <AlertTriangle size={28} />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-bold text-amber-900 dark:text-amber-100 mb-1">Page Under Construction</h3>
+                            <p className="text-base text-amber-800 dark:text-amber-200/80 leading-relaxed">
+                                I am currently migrating my projects to this new platform. In the meantime, you can view all my product case studies on my{' '}
+                                <a 
+                                    href="https://prayanshratan.notion.site/9c86d4c7fd34458db68e77f615d8ffc1?v=c3c292be14584dffad03e549b4990e0a" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="font-bold text-amber-700 dark:text-amber-300 hover:text-amber-600 dark:hover:text-amber-200 underline decoration-amber-300 dark:decoration-amber-700 hover:decoration-amber-500 dark:hover:decoration-amber-400 transition-all inline-flex items-center gap-1"
+                                >
+                                    legacy website
+                                    <ArrowUpRight size={16} />
+                                </a>.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Filter Actions */}
