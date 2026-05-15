@@ -55,7 +55,7 @@ const Experience = () => {
                             className={`flex flex-col md:flex-row gap-8 items-center ${index % 2 !== 0 ? 'md:flex-row-reverse' : ''}`}
                         >
                             {/* Card content... (Same as before) */}
-                            <div className="w-full md:w-1/2">
+                            <div className={`w-full md:w-1/2 ${index % 2 !== 0 ? 'md:pl-12' : 'md:pr-12'}`}>
                                 <div className={`p-8 rounded-3xl border border-border bg-card/50 backdrop-blur-sm hover:border-brand/50 transition-colors shadow-sm dark:shadow-none ${index % 2 !== 0 ? 'md:text-left' : 'md:text-right'}`}>
                                     <span className="text-brand font-mono text-sm mb-2 block">{exp.period}</span>
                                     <h3 className="text-2xl font-bold text-foreground mb-1">{exp.role}</h3>
