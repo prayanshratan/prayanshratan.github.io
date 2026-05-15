@@ -6,7 +6,7 @@ const DataContext = createContext();
 const initialDataFallback = {
     hero: {
         title: "Building products\nthat shape the future.",
-        subtitle: "I'm a Product Manager who codes. I utilize my engineering background to bridge the technical gap, translating complex problems into elegant, scalable solutions.",
+        subtitle: "I'm a Senior Product Manager who codes. I utilize my engineering background to bridge the technical gap, translating complex problems into elegant, scalable solutions.",
         resumeUrl: "/resume.pdf"
     },
     experience: [],
