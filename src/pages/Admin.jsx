@@ -196,6 +196,108 @@ const Admin = () => {
         updateLocalState('projects', localData.projects.filter(item => item.id !== id));
     };
 
+    const handleProjectMultiImageUpload = async (id, e) => {
+        const files = Array.from(e.target.files);
+        if (!files.length) return;
+        const project = localData.projects.find(p => p.id === id);
+        const currentImages = [...(project?.images || [])];
+        const blobUrls = files.map(f => URL.createObjectURL(f));
+        updateProject(id, 'images', [...currentImages, ...blobUrls]);
+        const uploadedUrls = await Promise.all(files.map(async (file) => {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+            const filePath = `projects/${fileName}`;
+            const { error } = await supabase.storage.from('portfolio').upload(filePath, file, { upsert: true });
+            if (error) { alert(`Upload failed: ${error.message}`); return null; }
+            const { data } = supabase.storage.from('portfolio').getPublicUrl(filePath);
+            return data.publicUrl;
+        }));
+        updateProject(id, 'images', [...currentImages, ...uploadedUrls.filter(Boolean)]);
+    };
+
+    const removeProjectImage = (id, index) => {
+        const project = localData.projects.find(p => p.id === id);
+        const imgs = [...(project?.images || [])];
+        imgs.splice(index, 1);
+        updateProject(id, 'images', imgs);
+    };
+
+    // Case Studies
+    const addCaseStudy = () => {
+        const newCS = {
+            id: generateId(),
+            title: "New Case Study",
+            category: "New Category",
+            description: "Case study description...",
+            tech: ["Product"],
+            img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
+            images: [],
+            colSpan: "md:col-span-1",
+            selected: false,
+            caseStudy: "",
+            mediumLink: ""
+        };
+        updateLocalState('caseStudies', [newCS, ...(localData.caseStudies || [])]);
+    };
+
+    const updateCaseStudy = (id, field, value) => {
+        if (field === 'selected' && value === true) {
+            const currentSelectedCount = (localData.caseStudies || []).filter(cs => cs.selected).length;
+            if (currentSelectedCount >= 4) {
+                alert("Action Denied: You can only have 4 selected case studies at a time.");
+                return;
+            }
+        }
+        const updated = (localData.caseStudies || []).map(item =>
+            item.id === id ? { ...item, [field]: value } : item
+        );
+        updateLocalState('caseStudies', updated);
+    };
+
+    const handleCaseStudyImageUpload = async (id, e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const objectUrl = URL.createObjectURL(file);
+        updateCaseStudy(id, 'img', objectUrl);
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `case-studies/${fileName}`;
+        const { error } = await supabase.storage.from('portfolio').upload(filePath, file, { upsert: true });
+        if (error) { alert(`Upload failed: ${error.message}`); return; }
+        const { data } = supabase.storage.from('portfolio').getPublicUrl(filePath);
+        updateCaseStudy(id, 'img', data.publicUrl);
+    };
+
+    const handleCaseStudyMultiImageUpload = async (id, e) => {
+        const files = Array.from(e.target.files);
+        if (!files.length) return;
+        const cs = (localData.caseStudies || []).find(c => c.id === id);
+        const currentImages = [...(cs?.images || [])];
+        const blobUrls = files.map(f => URL.createObjectURL(f));
+        updateCaseStudy(id, 'images', [...currentImages, ...blobUrls]);
+        const uploadedUrls = await Promise.all(files.map(async (file) => {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+            const filePath = `case-studies/${fileName}`;
+            const { error } = await supabase.storage.from('portfolio').upload(filePath, file, { upsert: true });
+            if (error) { alert(`Upload failed: ${error.message}`); return null; }
+            const { data } = supabase.storage.from('portfolio').getPublicUrl(filePath);
+            return data.publicUrl;
+        }));
+        updateCaseStudy(id, 'images', [...currentImages, ...uploadedUrls.filter(Boolean)]);
+    };
+
+    const removeCaseStudyImage = (id, index) => {
+        const cs = (localData.caseStudies || []).find(c => c.id === id);
+        const imgs = [...(cs?.images || [])];
+        imgs.splice(index, 1);
+        updateCaseStudy(id, 'images', imgs);
+    };
+
+    const deleteCaseStudy = (id) => {
+        updateLocalState('caseStudies', (localData.caseStudies || []).filter(item => item.id !== id));
+    };
+
     // Skills
     const addSkill = () => {
         updateLocalState('skills', [...localData.skills, "New Skill"]);
@@ -282,14 +384,14 @@ const Admin = () => {
                 </h1>
 
                 <nav className="flex-1 space-y-2">
-                    {['experience', 'projects', 'skills', 'contact', 'resume', 'goodreads'].map(tab => (
+                    {['experience', 'projects', 'case-studies', 'skills', 'contact', 'resume', 'goodreads'].map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`w-full text-left px-4 py-3 rounded-lg capitalize transition-colors ${activeTab === tab ? 'bg-brand text-white' : 'hover:bg-muted/80'
                                 }`}
                         >
-                            {tab}
+                            {tab === 'case-studies' ? 'Case Studies' : tab}
                         </button>
                     ))}
                 </nav>
@@ -309,7 +411,7 @@ const Admin = () => {
                     {/* Global Save Header - Sticky on Desktop */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 sticky top-0 bg-background/95 backdrop-blur z-10 py-4 border-b border-border">
                         <div>
-                            <h2 className="text-3xl font-bold capitalize">{activeTab}</h2>
+                            <h2 className="text-3xl font-bold capitalize">{activeTab === 'case-studies' ? 'Case Studies' : activeTab}</h2>
                             <p className="text-sm text-muted-foreground mt-1">
                                 {hasUnsavedChanges ? "You have unsaved changes." : "All changes saved."}
                             </p>
@@ -526,6 +628,24 @@ const Admin = () => {
                                                 placeholder="https://medium.com/@username/story-slug"
                                             />
                                         </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-muted-foreground uppercase">Live URL (Optional)</label>
+                                            <input
+                                                value={project.liveUrl || ''}
+                                                onChange={(e) => updateProject(project.id, 'liveUrl', e.target.value)}
+                                                className="p-2 bg-muted rounded border border-border w-full mobile-input"
+                                                placeholder="https://yourproject.com"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-muted-foreground uppercase">GitHub URL (Optional)</label>
+                                            <input
+                                                value={project.githubUrl || ''}
+                                                onChange={(e) => updateProject(project.id, 'githubUrl', e.target.value)}
+                                                className="p-2 bg-muted rounded border border-border w-full mobile-input"
+                                                placeholder="https://github.com/username/repo"
+                                            />
+                                        </div>
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-xs font-semibold text-muted-foreground uppercase">Image URL (Overrides Upload)</label>
@@ -535,6 +655,27 @@ const Admin = () => {
                                             className="p-2 bg-muted rounded border border-border w-full mobile-input"
                                             placeholder="https://images.unsplash.com/..."
                                         />
+                                    </div>
+                                    <div className="space-y-2 md:col-span-2">
+                                        <label className="text-xs font-semibold text-muted-foreground uppercase">Additional Images</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {(project.images || []).map((imgUrl, idx) => (
+                                                <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden group border border-border">
+                                                    <img src={imgUrl} alt="" className="w-full h-full object-cover" />
+                                                    <button
+                                                        onClick={() => removeProjectImage(project.id, idx)}
+                                                        className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    >
+                                                        <X size={16} className="text-white" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            <label className="w-20 h-20 rounded-lg border border-dashed border-border flex items-center justify-center cursor-pointer hover:border-brand/50 bg-muted transition-colors">
+                                                <Plus size={20} className="text-muted-foreground" />
+                                                <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleProjectMultiImageUpload(project.id, e)} />
+                                            </label>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground">Hover a thumbnail and click to remove. Accepts multiple files at once.</p>
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-xs font-semibold text-muted-foreground uppercase">Description</label>
@@ -556,6 +697,161 @@ const Admin = () => {
                                                 theme="snow"
                                                 value={project.caseStudy || ''}
                                                 onChange={(value) => updateProject(project.id, 'caseStudy', value)}
+                                                modules={quillModules}
+                                                className="h-64"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* CASE STUDIES TAB */}
+                    {activeTab === 'case-studies' && (
+                        <div className="space-y-6">
+                            <div className="flex justify-between items-center bg-brand/5 p-4 rounded-lg border border-brand/10 mb-6">
+                                <div className="flex items-center gap-2">
+                                    <AlertCircle size={20} className="text-brand" />
+                                    <span className="text-sm">
+                                        Selected: <strong>{(localData.caseStudies || []).filter(cs => cs.selected).length}</strong> / 4 (Max for homepage)
+                                    </span>
+                                </div>
+                                <button onClick={addCaseStudy} className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover">
+                                    <Plus size={18} /> Add Case Study
+                                </button>
+                            </div>
+
+                            {(localData.caseStudies || []).map(cs => (
+                                <div key={cs.id} className={`p-6 border rounded-xl space-y-4 ${cs.selected ? 'bg-brand/5 border-brand ring-1 ring-brand/20' : 'bg-card border-border'}`}>
+                                    <div className="flex items-center justify-between pb-4 border-b border-border/50">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-16 h-16 rounded overflow-hidden bg-muted relative group">
+                                                <img src={cs.img} alt="cover" className="w-full h-full object-cover" />
+                                                <label className="absolute inset-0 bg-black/50 flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <Upload size={16} className="text-white" />
+                                                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleCaseStudyImageUpload(cs.id, e)} />
+                                                </label>
+                                            </div>
+                                            <div>
+                                                <h3 className="font-bold text-lg">{cs.title || 'Untitled Case Study'}</h3>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <label className={`flex items-center gap-2 cursor-pointer px-3 py-1.5 rounded-full transition-colors ${cs.selected ? 'bg-brand text-white' : 'bg-muted hover:bg-muted/80'}`}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={cs.selected}
+                                                    onChange={(e) => updateCaseStudy(cs.id, 'selected', e.target.checked)}
+                                                    className="hidden"
+                                                />
+                                                <span className="text-sm font-medium">{cs.selected ? 'Selected' : 'Select'}</span>
+                                            </label>
+                                            <button onClick={() => deleteCaseStudy(cs.id)} className="text-muted-foreground hover:text-red-500 p-2">
+                                                <Trash size={18} />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-muted-foreground uppercase">Project Title</label>
+                                            <input
+                                                value={cs.title}
+                                                onChange={(e) => updateCaseStudy(cs.id, 'title', e.target.value)}
+                                                className="p-2 bg-muted rounded border border-border w-full mobile-input"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-muted-foreground uppercase">Category</label>
+                                            <input
+                                                value={cs.category || ''}
+                                                onChange={(e) => updateCaseStudy(cs.id, 'category', e.target.value)}
+                                                className="p-2 bg-muted rounded border border-border w-full mobile-input"
+                                                placeholder="e.g. B2B SaaS"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-muted-foreground uppercase">Grid Size</label>
+                                            <select
+                                                value={cs.colSpan}
+                                                onChange={(e) => updateCaseStudy(cs.id, 'colSpan', e.target.value)}
+                                                className="p-2 bg-muted rounded border border-border w-full mobile-input"
+                                            >
+                                                <option value="md:col-span-1">Small (1 Column)</option>
+                                                <option value="md:col-span-2">Large (2 Columns)</option>
+                                            </select>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-muted-foreground uppercase">Tags / Tech Stack</label>
+                                            <input
+                                                value={cs.tech?.join(",") || ''}
+                                                onChange={(e) => updateCaseStudy(cs.id, 'tech', e.target.value.split(","))}
+                                                onBlur={() => updateCaseStudy(cs.id, 'tech', (cs.tech || []).map(t => t.trim()).filter(Boolean))}
+                                                className="p-2 bg-muted rounded border border-border w-full mobile-input"
+                                                placeholder="Product, Design, etc."
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-muted-foreground uppercase">Medium Link (Optional)</label>
+                                            <input
+                                                value={cs.mediumLink || ''}
+                                                onChange={(e) => updateCaseStudy(cs.id, 'mediumLink', e.target.value)}
+                                                className="p-2 bg-muted rounded border border-border w-full mobile-input"
+                                                placeholder="https://medium.com/@username/story-slug"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-muted-foreground uppercase">Image URL (Overrides Upload)</label>
+                                            <input
+                                                value={cs.img || ''}
+                                                onChange={(e) => updateCaseStudy(cs.id, 'img', e.target.value)}
+                                                className="p-2 bg-muted rounded border border-border w-full mobile-input"
+                                                placeholder="https://images.unsplash.com/..."
+                                            />
+                                        </div>
+                                        <div className="space-y-2 md:col-span-2">
+                                            <label className="text-xs font-semibold text-muted-foreground uppercase">Additional Images</label>
+                                            <div className="flex flex-wrap gap-2">
+                                                {(cs.images || []).map((imgUrl, idx) => (
+                                                    <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden group border border-border">
+                                                        <img src={imgUrl} alt="" className="w-full h-full object-cover" />
+                                                        <button
+                                                            onClick={() => removeCaseStudyImage(cs.id, idx)}
+                                                            className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        >
+                                                            <X size={16} className="text-white" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                                <label className="w-20 h-20 rounded-lg border border-dashed border-border flex items-center justify-center cursor-pointer hover:border-brand/50 bg-muted transition-colors">
+                                                    <Plus size={20} className="text-muted-foreground" />
+                                                    <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleCaseStudyMultiImageUpload(cs.id, e)} />
+                                                </label>
+                                            </div>
+                                            <p className="text-xs text-muted-foreground">Hover a thumbnail and click to remove. Accepts multiple files at once.</p>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-xs font-semibold text-muted-foreground uppercase">Description</label>
+                                        <textarea
+                                            value={cs.description || ''}
+                                            onChange={(e) => updateCaseStudy(cs.id, 'description', e.target.value)}
+                                            className="w-full p-2 bg-muted rounded border border-border h-24 resize-none mobile-input"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-xs font-semibold text-muted-foreground uppercase">
+                                            Case Study Content (Rich Text)
+                                        </label>
+                                        <p className="text-xs text-muted-foreground mb-2">
+                                            Rich Word Editor enabled. Copy-paste directly from Google Docs or Word.
+                                        </p>
+                                        <div className="bg-white text-black rounded-lg overflow-hidden prose-editor">
+                                            <ReactQuill
+                                                theme="snow"
+                                                value={cs.caseStudy || ''}
+                                                onChange={(value) => updateCaseStudy(cs.id, 'caseStudy', value)}
                                                 modules={quillModules}
                                                 className="h-64"
                                             />

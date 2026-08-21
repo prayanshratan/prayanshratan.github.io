@@ -1,18 +1,75 @@
 import { useState, useMemo } from 'react';
 import { useData } from '../context/DataContext';
 import { Link } from 'react-router-dom';
-import { Filter, ArrowLeft, ArrowUpRight, AlertTriangle } from 'lucide-react';
+import { Filter, ArrowLeft, ArrowUpRight, ExternalLink, Github } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import SectionLoader from '../components/SectionLoader';
+
+const ProjectTile = ({ project }) => (
+    <Link
+        to={`/projects/${project.id}-${project.title.toLowerCase().replace(/\s+/g, '-')}`}
+        className="group relative bg-card border border-border rounded-2xl overflow-hidden hover:shadow-xl hover:border-brand/30 transition-all duration-300 flex flex-col"
+    >
+        <div className="h-48 overflow-hidden relative bg-muted">
+            <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent z-10" />
+            {project.img ? (
+                <img
+                    src={project.img}
+                    alt={project.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+            ) : (
+                <div className="w-full h-full bg-muted" />
+            )}
+        </div>
+
+        <div className="p-5 flex flex-col flex-1">
+            <div className="flex items-start justify-between gap-2 mb-2">
+                <h3 className="font-bold text-lg text-foreground group-hover:text-brand transition-colors leading-tight">
+                    {project.title}
+                </h3>
+                <ArrowUpRight
+                    size={18}
+                    className="shrink-0 mt-0.5 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:text-brand transition-all"
+                />
+            </div>
+
+            {project.description && (
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4 line-clamp-2">
+                    {project.description}
+                </p>
+            )}
+
+            <div className="flex flex-wrap gap-1.5 mt-auto">
+                {project.tech && project.tech.map(t => (
+                    <span key={t} className="px-2 py-0.5 text-[10px] font-medium rounded-md bg-muted text-muted-foreground border border-border">
+                        {t}
+                    </span>
+                ))}
+            </div>
+
+            <div className="flex items-center gap-3 mt-4 pt-4 border-t border-border/50">
+                {project.liveUrl && (
+                    <span className="flex items-center gap-1 text-xs text-brand font-medium">
+                        <ExternalLink size={12} /> Live
+                    </span>
+                )}
+                {project.githubUrl && (
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground font-medium">
+                        <Github size={12} /> GitHub
+                    </span>
+                )}
+            </div>
+        </div>
+    </Link>
+);
 
 const AllProjects = () => {
     const { data, loading } = useData();
     const projects = data.projects || [];
     const [selectedTag, setSelectedTag] = useState('');
 
-    // Extract all unique tags (we assume tech/tags are in project.tech, or if category is used as well)
-    // The previous components use project.tech for tags.
     const allTags = useMemo(() => {
         const tags = new Set();
         projects.forEach(project => {
@@ -31,49 +88,26 @@ const AllProjects = () => {
     return (
         <div className="min-h-screen bg-background text-foreground flex flex-col">
             <Navbar />
-            <main className="flex-1 w-full max-w-5xl mx-auto p-4 md:p-8 pt-24 md:pt-32 pb-12">
-                <div className="mb-8 mt-4 md:mt-8 flex flex-col items-start gap-4">
+            <main className="flex-1 w-full max-w-6xl mx-auto p-4 md:p-8 pt-24 md:pt-32 pb-12">
+                <div className="mb-8 mt-4 md:mt-8 flex flex-col items-start gap-2">
                     <Link to="/" className="text-muted-foreground hover:text-brand flex items-center gap-2 mb-4 transition-colors">
                         <ArrowLeft size={20} /> Back to Home
                     </Link>
-                    <h1 className="text-4xl md:text-5xl font-bold">Prayansh's Product Case Studies</h1>
-                    <p className="text-xl text-muted-foreground mb-6">All my case studies and technical blogs.</p>
-                    
-                    {/* Prominent amber under-construction banner with dark mode support */}
-                    <div className="w-full bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-5 mb-4 shadow-sm">
-                        <div className="bg-amber-100 dark:bg-amber-500/20 p-3.5 rounded-xl shrink-0 text-amber-600 dark:text-amber-400">
-                            <AlertTriangle size={28} />
-                        </div>
-                        <div>
-                            <h3 className="text-xl font-bold text-amber-900 dark:text-amber-100 mb-1">Page Under Construction</h3>
-                            <p className="text-base text-amber-800 dark:text-amber-200/80 leading-relaxed">
-                                I am currently migrating my projects to this new platform. In the meantime, you can view all my product case studies on my{' '}
-                                <a 
-                                    href="https://prayanshratan.notion.site/9c86d4c7fd34458db68e77f615d8ffc1?v=c3c292be14584dffad03e549b4990e0a" 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="font-bold text-amber-700 dark:text-amber-300 hover:text-amber-600 dark:hover:text-amber-200 underline decoration-amber-300 dark:decoration-amber-700 hover:decoration-amber-500 dark:hover:decoration-amber-400 transition-all inline-flex items-center gap-1"
-                                >
-                                    legacy website
-                                    <ArrowUpRight size={16} />
-                                </a>.
-                            </p>
-                        </div>
-                    </div>
+                    <h1 className="text-4xl md:text-5xl font-bold">Prayansh's Projects</h1>
+                    <p className="text-xl text-muted-foreground mb-6">All my projects.</p>
                 </div>
 
                 {loading ? (
                     <div className="mt-12">
-                        <SectionLoader text="Loading all projects from Supabase..." />
+                        <SectionLoader text="Loading projects from Supabase..." />
                     </div>
                 ) : (
                     <>
-                        {/* Filter Actions */}
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                             <div className="flex items-center gap-2 overflow-x-auto w-full pb-2 md:pb-0">
                                 <div className="flex items-center gap-2 text-muted-foreground mr-2 shrink-0">
                                     <Filter size={18} />
-                                    <span className="text-sm font-medium">Filter by tag:</span>
+                                    <span className="text-sm font-medium">Filter:</span>
                                 </div>
                                 <button
                                     onClick={() => setSelectedTag('')}
@@ -92,64 +126,19 @@ const AllProjects = () => {
                                 ))}
                             </div>
                             <div className="shrink-0 text-sm text-muted-foreground">
-                                Showing {filteredProjects.length} case {filteredProjects.length === 1 ? 'study' : 'studies'}
+                                Showing {filteredProjects.length} {filteredProjects.length === 1 ? 'project' : 'projects'}
                             </div>
                         </div>
 
-                        {/* Table View */}
-                        <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-                            <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="border-b border-border bg-muted/30">
-                                        <th className="py-4 px-6 font-semibold text-sm text-muted-foreground w-2/3">Title</th>
-                                        <th className="py-4 px-6 font-semibold text-sm text-muted-foreground w-1/3 border-l border-border hidden md:table-cell">Tags</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredProjects.length === 0 ? (
-                                        <tr>
-                                            <td colSpan="2" className="py-12 text-center text-muted-foreground">
-                                                No case studies found for this tag.
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        filteredProjects.map(project => (
-                                            <tr key={project.id} className="border-b border-border/50 hover:bg-muted/10 transition-colors group">
-                                                <td className="py-4 px-6">
-                                                    <Link
-                                                        to={`/case-studies/${project.id}-${project.title.toLowerCase().replace(/\s+/g, '-')}`}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="font-medium text-lg text-foreground group-hover:text-brand transition-colors flex items-center gap-2"
-                                                    >
-                                                        {project.title}
-                                                        <ArrowUpRight size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                    </Link>
-
-                                                    {/* Mobile only tags display directly under title */}
-                                                    <div className="flex flex-wrap gap-2 mt-3 md:hidden">
-                                                        {project.tech && project.tech.map(t => (
-                                                            <span key={t} className="px-2 py-0.5 text-[10px] font-medium rounded-md bg-muted text-muted-foreground border border-border">
-                                                                {t}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                </td>
-                                                <td className="py-4 px-6 border-l border-border hidden md:table-cell">
-                                                    <div className="flex flex-wrap gap-2">
-                                                        {project.tech && project.tech.map(t => (
-                                                            <span key={t} className="px-2.5 py-1 text-xs font-medium rounded-md bg-muted text-muted-foreground border border-border">
-                                                                {t}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
+                        {filteredProjects.length === 0 ? (
+                            <div className="py-24 text-center text-muted-foreground">No projects found for this tag.</div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {filteredProjects.map(project => (
+                                    <ProjectTile key={project.id} project={project} />
+                                ))}
+                            </div>
+                        )}
                     </>
                 )}
             </main>

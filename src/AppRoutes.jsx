@@ -5,6 +5,8 @@ import Login from './pages/Login';
 import Admin from './pages/Admin';
 import CaseStudy from './pages/CaseStudy';
 import AllProjects from './pages/AllProjects';
+import AllCaseStudies from './pages/AllCaseStudies';
+import ProjectDetail from './pages/ProjectDetail';
 import Goodreads from './pages/Goodreads';
 
 const ProtectedRoute = ({ children }) => {
@@ -24,6 +26,8 @@ const AppRoutes = () => {
         <Routes>
             <Route path="/" element={<App />} />
             <Route path="/projects" element={<AllProjects />} />
+            <Route path="/projects/:id" element={<ProjectDetail />} />
+            <Route path="/case-studies" element={<AllCaseStudies />} />
             <Route path="/goodreads" element={<Goodreads />} />
             <Route path="/login" element={<Login />} />
             <Route

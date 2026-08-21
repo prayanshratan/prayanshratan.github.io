@@ -40,7 +40,7 @@ function Card({ project, index }) {
                 <div className="p-8 pb-0 flex-grow">
                     <div className="flex justify-end items-start mb-2">
                         <Link
-                            to={`/case-studies/${project.id}-${project.title.toLowerCase().replace(/\s+/g, '-')}`}
+                            to={`/projects/${project.id}-${project.title.toLowerCase().replace(/\s+/g, '-')}`}
                             className="p-2 rounded-full bg-muted text-foreground transform translate-x-2 -translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300 hover:bg-brand hover:text-white z-20 cursor-pointer"
                         >
                             <ArrowUpRight size={20} />
@@ -86,13 +86,13 @@ const Projects = () => {
         <section id="projects" className="section relative">
             <div className="container mx-auto px-6">
                 <motion.div className="mb-16 max-w-2xl">
-                    <span className="text-brand font-semibold tracking-wider uppercase text-sm mb-2 block">Portfolio</span>
+                    <span className="text-brand font-semibold tracking-wider uppercase text-sm mb-2 block">Projects</span>
                     <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">Selected Works</h2>
                     <p className="text-lg text-muted-foreground font-light mb-2">
                         A curation of projects I have worked on.
                     </p>
                     <Link to="/projects" className="text-brand hover:underline font-medium inline-flex items-center gap-1">
-                        See all case studies here <ArrowUpRight size={16} />
+                        See all my projects here <ArrowUpRight size={16} />
                     </Link>
                 </motion.div>
 
@@ -111,7 +111,7 @@ const Projects = () => {
                                 to="/projects"
                                 className="group flex items-center gap-2 px-8 py-4 bg-transparent border-2 border-brand text-brand hover:bg-brand hover:text-white font-bold rounded-full transition-all duration-300"
                             >
-                                View All Project Case Studies
+                                See all my projects
                                 <ArrowUpRight size={20} className="transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                             </Link>
                         </div>

@@ -11,6 +11,7 @@ const initialDataFallback = {
     },
     experience: [],
     projects: [],
+    caseStudies: [],
     goodreads: [],
     skills: [],
     contact: {
@@ -34,13 +35,15 @@ export const DataProvider = ({ children }) => {
                     { data: experienceData },
                     { data: projectsData },
                     { data: skillsData },
-                    { data: goodreadsData }
+                    { data: goodreadsData },
+                    { data: caseStudiesData }
                 ] = await Promise.all([
                     supabase.from('profile').select('*').single(),
                     supabase.from('experience').select('*').order('period', { ascending: false }),
                     supabase.from('projects').select('*'),
                     supabase.from('skills').select('*'),
-                    supabase.from('goodreads').select('*')
+                    supabase.from('goodreads').select('*'),
+                    supabase.from('case_studies').select('*')
                 ]);
 
                 // Map Supabase profile DB columns back to frontend state shape
@@ -57,12 +60,22 @@ export const DataProvider = ({ children }) => {
                     twitter: profileData.twitter
                 } : initialDataFallback.contact;
 
-                // Format projects (reconnect colSpan -> col_span, caseStudy -> case_study, mediumLink -> medium_link)
                 const formattedProjects = (projectsData || []).map(p => ({
                     ...p,
                     colSpan: p.col_span,
                     caseStudy: p.case_study,
-                    mediumLink: p.medium_link
+                    mediumLink: p.medium_link,
+                    liveUrl: p.live_url,
+                    githubUrl: p.github_url,
+                    images: p.images || []
+                }));
+
+                const formattedCaseStudies = (caseStudiesData || []).map(cs => ({
+                    ...cs,
+                    colSpan: cs.col_span,
+                    caseStudy: cs.case_study,
+                    mediumLink: cs.medium_link,
+                    images: cs.images || []
                 }));
 
                 const skillsList = (skillsData || []).map(s => s.name);
@@ -71,6 +84,7 @@ export const DataProvider = ({ children }) => {
                     hero,
                     experience: experienceData || [],
                     projects: formattedProjects,
+                    caseStudies: formattedCaseStudies,
                     goodreads: goodreadsData || [],
                     skills: skillsList,
                     contact
@@ -120,27 +134,28 @@ export const DataProvider = ({ children }) => {
             }
 
             // 3. Save Projects
-            // Similarly, replace all projects
             await supabase.from('projects').delete().neq('id', 'temp');
             if (localData.projects.length > 0) {
-                const formattedProjects = localData.projects.map(p => ({
-                    ...p,
-                    col_span: p.colSpan, // Convert back to DB column name
-                    case_study: p.caseStudy,
-                    medium_link: p.mediumLink
-                }));
-                // Remove frontend specific keys if any
-                formattedProjects.forEach(p => {
-                    delete p.colSpan;
-                    delete p.caseStudy;
-                    delete p.mediumLink;
+                const formattedProjects = localData.projects.map(p => {
+                    const { colSpan, caseStudy, mediumLink, liveUrl, githubUrl, ...rest } = p;
+                    return { ...rest, col_span: colSpan, case_study: caseStudy, medium_link: mediumLink, live_url: liveUrl, github_url: githubUrl };
                 });
-
                 const { error: projError } = await supabase.from('projects').insert(formattedProjects);
                 if (projError) throw projError;
             }
 
-            // 4. Save Skills
+            // 4. Save Case Studies
+            await supabase.from('case_studies').delete().neq('id', 'temp');
+            if ((localData.caseStudies || []).length > 0) {
+                const formattedCaseStudies = localData.caseStudies.map(cs => {
+                    const { colSpan, caseStudy, mediumLink, ...rest } = cs;
+                    return { ...rest, col_span: colSpan, case_study: caseStudy, medium_link: mediumLink };
+                });
+                const { error: csError } = await supabase.from('case_studies').insert(formattedCaseStudies);
+                if (csError) throw csError;
+            }
+
+            // 5. Save Skills
             await supabase.from('skills').delete().neq('name', 'temp');
             if (localData.skills.length > 0) {
                 const skillRecords = localData.skills.map(s => ({ name: s }));
@@ -148,7 +163,7 @@ export const DataProvider = ({ children }) => {
                 if (skillError) throw skillError;
             }
 
-            // 5. Save Goodreads
+            // 6. Save Goodreads
             await supabase.from('goodreads').delete().neq('id', 'temp');
             if (localData.goodreads && localData.goodreads.length > 0) {
                 const { error: grError } = await supabase.from('goodreads').insert(localData.goodreads);

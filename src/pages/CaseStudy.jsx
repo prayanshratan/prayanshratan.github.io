@@ -24,16 +24,12 @@ const CaseStudy = () => {
     const scale = useTransform(scrollYProgress, [0, 1], [1, 1.2]);
 
     useEffect(() => {
-        if (data && data.projects) {
-            const foundProject = data.projects.find(p => p.id.toString().toUpperCase() === projectId.toUpperCase());
-            if (foundProject) {
-                setProject(foundProject);
-            } else {
-                // Handle not found - maybe redirect or show error
-                // navigate('/'); 
-            }
+        if (data) {
+            const allItems = [...(data.projects || []), ...(data.caseStudies || [])];
+            const found = allItems.find(p => p.id.toString().toUpperCase() === projectId.toUpperCase());
+            if (found) setProject(found);
         }
-    }, [data, projectId, navigate]);
+    }, [data, projectId]);
 
     if (!project) {
         return (
